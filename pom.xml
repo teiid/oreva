@@ -21,15 +21,16 @@
 
   <issueManagement>
     <system>github.com</system>
-    <url>https://github.com/rareddy/oreva/issues</url>
+    <url>https://github.com/teiid/oreva/issues</url>
   </issueManagement>
 
   <scm>
-    <connection>scm:hg:https://odata4j.googlecode.com/hg/</connection>
-    <developerConnection>scm:hg:https://odata4j.googlecode.com/hg/</developerConnection>
-    <url>http://code.google.com/p/odata4j/source/browse/</url>
+	<connection>scm:git:git://github.com/teiid/oreva.git</connection>
+	<developerConnection>scm:git:git@github.com:teiid/oreva.git</developerConnection>
+	<url>http://github.com/teiid/oreva</url>
+	<tag>HEAD</tag>
   </scm>
-
+  
   <developers>
     <developer>
       <id>carljmosca</id>
