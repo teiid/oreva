@@ -1,0 +1,212 @@
+<?xml version="1.0"?>
+<!DOCTYPE rss [
+<!ELEMENT link (#PCDATA)>
+<!ELEMENT language (#PCDATA)>
+<!ELEMENT copyright (#PCDATA)>
+<!ELEMENT webMaster (#PCDATA)>
+<!ELEMENT ttl (#PCDATA)>
+<!ELEMENT title (#PCDATA)>
+<!ELEMENT image (#PCDATA)>
+<!ELEMENT link (#PCDATA)>
+<!ELEMENT description (#PCDATA)>
+<!ELEMENT pubDate (#PCDATA)>
+<!ELEMENT enclosure EMPTY>
+<!ATTLIST enclosure url CDATA #REQUIRED	length CDATA ""	type CDATA #REQUIRED>
+<!ELEMENT item (title,link,description,pubDate,enclosure)>
+<!ELEMENT channel (title,link,description,language,copyright,webMaster,ttl,(item)+)>
+<!ELEMENT rss (channel)>
+<!ATTLIST rss 	version CDATA #REQUIRED	xmlns:xsi CDATA #REQUIRED	xsi:noNamespaceSchemaLocation CDATA #REQUIRED xmlns:podzinger CDATA #REQUIRED>
+]>
+<rss version="2.0">
+<channel>
+<title>The SaxTips Podcast: Saxophone Lessons and all things around and about the Saxophone.</title>
+<link>http://www.saxtipspodcast.com</link>
+<description>The First and Only Saxophone Workshop on the Web as a Podcast. Hosted by Julius Keilwerth Saxophones endorser Evan Tate. http://www.evantate.com</description>
+<language>en-us</language>
+<copyright>Copyright &#xA9; 2005 Evan Tate Music</copyright>
+<webMaster>evan@evantate.com</webMaster>
+<ttl>60</ttl>
+
+<image>
+<url>http://www.evantate.com/images/SaxTipsPodLogo2.JPG</url>
+<title>The SaxTips Podcast</title>
+<link>http://www.saxtipspodcast.com</link>
+<width>300</width>
+<height>300</height>
+<description>The SaxTips Podcast Logo</description>
+</image>
+
+<item>
+<title>SaxTips Podcast #30 - Quick Tip (Audio)</title>
+<link>http://www.saxtipspodcast.com/2009/03/saxtips-vidcast-30-quick-tip.html</link>
+<description>The SaxTips QuickTip. This episode: Belief and its power. Call in your comments or questions: skype: saxtipspodcast. Or send an email to: evan@evantate.com</description>
+<pubDate>Tue, 31 Mar 2009 18:00:00 +0100</pubDate>
+<enclosure url="http://www.amazingsax.info/media/SaxTipsPodcast_2009.m4a" length="351620000" type="audio/mpeg"/>
+</item>
+
+
+<item>
+<title>SaxTips Podcast #29 - One Note Theory (Video)</title>
+<link>http://www.saxtipspodcast.com/2008/09/saxtips-vidcast-1-one-note-theory.html</link>
+<description>The first SaxTips Vidcast (Video Podcast). This episode: The One Note Theory. Call in your comments or questions: skype: saxtipspodcast. Or send an email to: evan@evantate.com</description>
+<pubDate>Sun, 28 Sep 2008 12:58:00 +0100</pubDate>
+<enclosure url="http://www.evantate.com/media/OneNoteTheory.mov" length="351620000" type="video/mpeg"/>
+</item>
+
+<item>
+<title>SaxTips Podcast #28 - A Report from the Frankfurt Music Fair 2008 (Enhanced)</title>
+<link>http://www.saxtipspodcast.com/2008/05/saxtips-podcast-28-report-from.html</link>
+<description>Tops and Flops in the world of Saxophones. Call in your comments or questions: skype: saxtipspodcast</description>
+<pubDate>Thu, 15 May 2008 23:45:00 +0100</pubDate>
+<enclosure url="http://www.evantate.com/podcasts/2008/05/SaxTipsPodcast28.m4a" length="351620000" type="audio/mpeg"/>
+</item>
+
+<item>
+<title>SaxTips Podcast #28 - A Report from the Frankfurt Music Fair 2008 (MP3 Version)</title>
+<link>http://www.saxtipspodcast.com/2008/05/saxtips-podcast-28-report-from.html</link>
+<description>Tops and Flops in the world of Saxophones. Call in your comments or questions: skype: saxtipspodcast</description>
+<pubDate>Thu, 15 May 2008 23:45:00 +0100</pubDate>
+<enclosure url="http://www.evantate.com/podcasts/2008/05/SaxTipsPodcast28.mp3" length="351620000" type="audio/mpeg"/>
+</item>
+
+
+<item>
+<title>SaxTips Podcast #27 - An Interview with Alto Saxophonist Eric Person</title>
+<link>http://www.saxtipspodcast.com/2007/04/saxtips-podcast-27-interview-w.html</link>
+<description>Part II of An interview with saxophonist Eric Person. Call in your comments or questions: skype: saxtipspodcast</description>
+<pubDate>Thu, 5 April 2007 15:30:00 +0100</pubDate>
+<enclosure url="http://www.evantate.com/podcasts/2007/04/saxpod_20070405.mp3" length="251700000" type="audio/mpeg"/>
+</item>
+
+<item>
+<title>SaxTips Podcast #26 - An Interview with Alto Saxophonist Sue Terry (Part 2)</title>
+<link>http://www.saxtipspodcast.com/2007/03/saxtips-podcast-26-interview-w.html</link>
+<description>Part II of An interview with saxophonist Sue Terry. Call in your comments or questions: +1-302-476-2517</description>
+<pubDate>Wed, 14 Mar 2007 12:15:00 +0100</pubDate>
+<enclosure url="http://www.evantate.com/podcasts/2007/03/saxpod_20070314.mp3" length="151700000" type="audio/mpeg"/>
+</item>
+
+<item>
+<title>SaxTips Podcast #25 - An Interview with Alto Saxophonist Sue Terry (Part 1)</title>
+<link>http://www.saxtipspodcast.com/2007/03/saxtips-podcast-25-interview-with.html</link>
+<description>Part I of An interview with saxophonist Sue Terry. ChipIn for new "SaxTips" MacBook! Call in your comments or questions: +1-302-476-2517</description>
+<pubDate>Fri, 09 Mar 2007 12:15:00 +0100</pubDate>
+<enclosure url="http://www.evantate.com/podcasts/2007/03/saxpod_20070309.mp3" length="181700000" type="audio/mpeg"/>
+</item>
+
+<item>
+<title>SaxTips Podcast #24 - An Interview with Mulit-instrumentalist Tim Price (part 2)</title>
+<link>http://www.saxtipspodcast.com/2007/02/saxtips-podcast-24-interview-w-mulit.html</link>
+<description>Part II of An interview with the Multi-Instrumentalist, Selmer Saxophone Clinician, Jazz Educator Mr. Tim Price. ChipIn for new "SaxTips" MacBook! Call in your comments or questions: +1-302-476-2517</description>
+<pubDate>Wed, 28 Feb 2007 01:45:00 +0100</pubDate>
+<enclosure url="http://www.evantate.com/podcasts/2007/02/saxpod_20070228.mp3" length="181700000" type="audio/mpeg"/>
+</item>
+
+<item>
+<title>SaxTips Podcast #23 - An Interview with Mulit-instrumentalist Tim Price (part 1)</title>
+<link>http://www.saxtipspodcast.com/2007/02/saxtips-podcast-23-interview-w-multi.html</link>
+<description>Part I of An interview with the Multi-Instrumentalist, Selmer Saxophone Clinician, Jazz Educator Mr. Tim Price. ChipIn for new "SaxTips" MacBook! Call in your comments or questions: +1-302-476-2517</description>
+<pubDate>Thu, 22 Feb 2007 01:45:00 +0100</pubDate>
+<enclosure url="http://www.evantate.com/podcasts/2007/02/saxpod_20070221.mp3" length="181700000" type="audio/mpeg"/>
+</item>
+
+<item>
+<title>SaxTips Podcast #22 - Your Mouthpiece, Ligature and Reed Setup, 5 Tips to Improve your technique. Listener email.</title>
+<link>http://www.saxtipspodcast.com/2007/02/saxtips-podcast-22-your-mouthpiece.html</link>
+<description>1. Your Mouthpiece, Ligature and Reed Setup, 2. 5 Tips to Improve your technique. 3. Listener email. Music by the Munich Saxophone Family and Spherical. ChipIn for new "SaxTips" MacBook! Call in your comments or questions: +1-302-476-2517</description>
+<pubDate>Sun, 11 Feb 2007 20:45:00 +0100</pubDate>
+<enclosure url="http://www.evantate.com/podcasts/2007/02/saxpod_20070211.mp3" length="181700000" type="audio/mpeg"/>
+</item>
+
+<item>
+<title>SaxTips Podcast #21 - Some thoughts on the death of Michael Brecker</title>
+<link>http://www.saxtipspodcast.com/2007/01/saxtips-podcast-21-some-thoughts-on.html</link>
+<description>1st Movement from "Concerto for Saxophone" by Pierre Max-Dubois. Some thoughts on the death of Michael Brecker. "Digital" by Evan Tate. ChipIn for new "SaxTips" MacBook! Call in your comments or questions: +1-302-476-2517</description>
+<pubDate>Tues, 16 Jan 2007 14:45:00 +0100</pubDate>
+<enclosure url="http://www.evantate.com/podcasts/2007/01/saxpod_20070116.mp3" length="181700000" type="audio/mpeg"/>
+</item>
+
+<item>
+<title>SaxTips Podcast #20 - A Simpler look at Jazz Improvisation.</title>
+<link>http://www.saxtipspodcast.com/</link>
+<description>A Simpler look at Jazz Improvisation. Music of Evan Tate and Chris Burnett. ChipIn for new "SaxTips" MacBook! Call in your comments or questions: +1-302-476-2517</description>
+<pubDate>Wed, 20 Dec 2006 14:45:00 +0100</pubDate>
+<enclosure url="http://www.evantate.com/podcasts/2006/12/saxpod_20061220.mp3" length="181700000" type="audio/mpeg"/>
+</item>
+
+<item>
+<title>SaxTips Podcast #19 - Jazz Improvisation and Learning Jazz Standards.</title>
+<link>http://www.saxtipspodcast.com/</link>
+<description>Jazz Improvisation: My views. Learning Jazz Standards and My Rant. Call in your comments or questions: +1-302-476-2517</description>
+<pubDate>Tue, 12 Dec 2006 14:34:00 +0100</pubDate>
+<enclosure url="http://www.evantate.com/podcasts/2006/12/saxpod20061212.mp3" length="181700000" type="audio/mpeg"/>
+</item>
+
+<item>
+<title>SaxTips Podcast #18 - Video Treat</title>
+<link>http://www.saxtipspodcast.com/</link>
+<description>Cannonball Adderley Sextet - German TV 1963. Call in your questions: +1-302-476-2517</description>
+<pubDate>Sat, 21 Oct 2006 12:30:00 +0100</pubDate>
+<enclosure url="http://www.dailymotion.com/video/x1ijh_cannonball-adderley-sextet" length="181700000" type="video/mpeg"/>
+</item>
+
+<item>
+<title>SaxTips Podcast #17 - A Career in Music, The Music of Saxes</title>
+<link>http://www.saxtipspodcast.com/</link>
+<description>1. "Carioca" - Saxaes, Topic: Music as a Career. Call in your questions: +1-302-476-2517</description>
+<pubDate>Tue, 26 Sept 2006 14:30:00 +0100</pubDate>
+<enclosure url="http://www.evantate.com/podcasts/2006/09/saxpod_20060926.mp3" length="181700000" type="audio/mpeg"/>
+</item>
+
+<item>
+<title>Two new Saxophone eBooks from Evan Tate</title>
+<link>http://waytomastery.blogspot.com</link>
+<description>The Way To Mastery: Saxophone "Workout Book"! &amp; 250 Jazz patterns! 
+The newest saxophone publication from Evan Tate - The Way To Mastery: Saxophone "Workout Book"!
+These books are designed to give the intermediate to advanced saxophonist a powerful regimen to keep sharp on all necessary skills for today's saxophonist.</description>
+<pubDate>Fri, 22 Sept 2006 18:42:00 +0100</pubDate>
+<enclosure url="http://waytomastery.blogspot.com" length="26673300" type="text/html"/>
+</item>
+
+
+<item>
+<title>SaxTips Podcast #16 - Topics: Intonation, Reed Tips, Self-taught Saxophone. Music: The Munich Saxophone Family, Saxophonist Anton Harris. Special Summer Offer for SaxTips Podcast listeners.</title>
+<link>http://www.saxtipspodcast.com/2006/06/saxtips-podcast-16-topics-intonation.html</link>
+<description>1. Intonation and Tuning: Ensemblespiel, tuning with brass. 2. Reed Tips - switching strengths, rotating reeds, reed preparation
+3. Self-taught saxophonist. Music: Munich Saxophone Family: Soul Music / Strings Inside. Go to: www.thomaszoller.com. Anton Harris: Modern Mythology / Grey Matter. Go to: www.antonharris.com or http://cdbaby.com/cd/ahq</description>
+<pubDate>Mon, 26 June 2006 13:17:00 +0100</pubDate>
+<enclosure url="http://www.waytomastery.com/media/stpod/2006/06/saxpod_20060626.mp3" length="26673300" type="audio/mpeg"/>
+</item>
+
+<item>
+<title>SaxTips Video Alert! - Micheal Brecker</title>
+<link>http://www.youtube.com/watch?v=ci72foN6M8w</link>
+<description>Videoclip from 1983 with the Micheal Brecker Group playing "Take A Walk".</description>
+<pubDate>Sun, 18 June 2006 12:38:00 +0100</pubDate>
+<enclosure url="http://www.youtube.com/watch?v=ci72foN6M8w" length="36216320" type="text/html"/>
+</item>
+
+<item>
+<title>SaxTips Video Alert! - John Coltrane</title>
+<link>http://www.youtube.com/watch?v=BLW0uyUUpzA</link>
+<description>Videoclip from 1965 with the John Coltrane Quartet playing "Naima".</description>
+<pubDate>Sun, 18 June 2006 12:36:00 +0100</pubDate>
+<enclosure url="http://www.youtube.com/watch?v=BLW0uyUUpzA" length="36216320" type="text/html"/>
+</item>
+
+<item>
+<title>SaxTips Video Alert! - David Liebman</title>
+<link>http://www.youtube.com/watch?v=JvPQWPfQp08</link>
+<description>Interview and concert clips with David Liebman on Bret Primack's Jazz Video Podcast. David Liebman is truly one of today's most important saxophonists and jazz educators. Check out the video!</description>
+<pubDate>Sun, 18 June 2006 11:54:00 +0100</pubDate>
+<enclosure url="http://www.youtube.com/watch?v=JvPQWPfQp08" length="36216320" type="text/html"/>
+</item>
+
+
+
+
+
+
+
+</channel>
+</rss>

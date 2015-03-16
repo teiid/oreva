@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" version="2.0">
+    <channel>
+        <ttl>60</ttl>
+        <title>This Week</title>
+        <itunes:author>ABC News</itunes:author>
+        <link>http://abcnews.go.com/ThisWeek/</link>
+        <description>Sunday morning news program which features newsmaker interviews and panel debates on a wide range of issues, and commentary.</description>
+        <itunes:subtitle>&quot;This Week&quot; features newsmaker interviews and panel debates on a wide range of issues, and commentary. Brought to you by ABCNews.com.</itunes:subtitle>
+        <itunes:summary>ABC&apos;s Sunday morning news program, &quot;This Week,&quot; features newsmaker interviews and panel debates on a wide range of issues, and commentary. Brought to you by ABCNews.com.</itunes:summary>
+		<itunes:keywords>abc news This Week, politics, George Will, roundtable, Cokie Roberts, Washington, governement, ABC News, ABC News Radio, radio, podcast, Stephanopoulos, DC, Washington DC, TV, Television, talk, talk show, show, news, Democrat, White House</itunes:keywords>  
+        <language>en</language>
+        
+        <copyright>Copyright (c) 2010 ABC News Internet Ventures</copyright>
+        <itunes:owner>
+            <itunes:name>ABC News</itunes:name>
+            <itunes:email>technical@abcnews.com</itunes:email>
+        </itunes:owner>
+        <image>
+            <url>http://a.abcnews.com/podcast/images/300_300_thisweek_tile.jpg</url>
+            <title>This Week</title>
+            <link>http://www.abcnews.com/Technology/Podcasting/</link>
+        </image> 
+        <category>Politics</category>
+        <!-- iTunes prefers square images 300x300 pixels or larger and the image must be a jpeg or png -->
+        <itunes:image href="http://a.abcnews.com/podcast/images/300_300_thisweek_tile.jpg" />
+       
+            
+                
+        <item>
+            <title>This Week (06.13.10)</title>
+            <itunes:author>ABC News</itunes:author>
+            <description>Leading congressmen discuss the oil spill and the primaries on &quot;This Week.&quot;</description>
+            <itunes:subtitle>Leading congressmen discuss the oil spill and the primaries on &quot;This Week.&quot;</itunes:subtitle> 
+            <itunes:summary>Leading congressmen discuss the oil spill and the primaries on &quot;This Week.&quot;</itunes:summary> 
+            <enclosure url="http://a.media.abcnews.com/podcasts/100613_tw_pod.mp3" length="" type="audio/mpeg" />
+<guid>http://a.media.abcnews.com/podcasts/100613_tw_pod.mp3</guid>
+<pubDate>Sun, 13 Jun 2010 09:25:40 EST</pubDate>
+
+            <category>News</category>
+            <itunes:explicit>No</itunes:explicit>
+        
+        <itunes:duration>00:00</itunes:duration>
+            <itunes:keywords>abc news Jake Tapper, Steny Hoyer, John Boehner, oil, BP, primaries, This Week, politics</itunes:keywords>         
+            <image>
+            <url>http://a.abcnews.com/podcast/images/300_300_thisweek_tile.jpg</url> 
+            <title>This Week</title>
+            <link>http://www.abcnews.com/Technology/Podcasting/</link>
+            </image> 
+        </item>
+                
+        <item>
+            <title>This Week (06.06.10)</title>
+            <itunes:author>ABC News</itunes:author>
+            <description>National Incident Commander Adm. Thad Allen has the latest on the oil spill.</description>
+            <itunes:subtitle>National Incident Commander Adm. Thad Allen has the latest on the oil spill.</itunes:subtitle> 
+            <itunes:summary>National Incident Commander Adm. Thad Allen has the latest on the oil spill.</itunes:summary> 
+            <enclosure url="http://a.media.abcnews.com/podcasts/100606_tw_pod.mp3" length="" type="audio/mpeg" />
+<guid>http://a.media.abcnews.com/podcasts/100606_tw_pod.mp3</guid>
+<pubDate>Sun, 06 Jun 2010 09:31:00 EST</pubDate>
+
+            <category>News</category>
+            <itunes:explicit>No</itunes:explicit>
+        
+        <itunes:duration>00:00</itunes:duration>
+            <itunes:keywords>abc news Jake Tapper, Adm. Thad Allen, oil, spill, leak, BP, This Week, politics</itunes:keywords>         
+            <image>
+            <url>http://a.abcnews.com/podcast/images/300_300_thisweek_tile.jpg</url> 
+            <title>This Week</title>
+            <link>http://www.abcnews.com/Technology/Podcasting/</link>
+            </image> 
+        </item>
+                
+        <item>
+            <title>This Week (05.30.10)</title>
+            <itunes:author>ABC News</itunes:author>
+            <description>Colin Powell gives &quot;This Week&quot; a Memorial Day weekend exclusive.</description>
+            <itunes:subtitle>Colin Powell gives &quot;This Week&quot; a Memorial Day weekend exclusive.</itunes:subtitle> 
+            <itunes:summary>Colin Powell gives &quot;This Week&quot; a Memorial Day weekend exclusive.</itunes:summary> 
+            <enclosure url="http://a.media.abcnews.com/podcasts/100530_tw_pod.mp3" length="" type="audio/mpeg" />
+<guid>http://a.media.abcnews.com/podcasts/100530_tw_pod.mp3</guid>
+<pubDate>Sun, 30 May 2010 10:09:49 EST</pubDate>
+
+            <category>News</category>
+            <itunes:explicit>No</itunes:explicit>
+        
+        <itunes:duration>00:00</itunes:duration>
+            <itunes:keywords>abc news Jake Tapper, Colin Powell, oil, BP, Gulf, Don&apos;t Ask, Don&apos;t Tell, Afghanistan, war, This Week, politics</itunes:keywords>         
+            <image>
+            <url>http://a.abcnews.com/podcast/images/300_300_thisweek_tile.jpg</url> 
+            <title>This Week</title>
+            <link>http://www.abcnews.com/Technology/Podcasting/</link>
+            </image> 
+        </item>
+                
+        <item>
+            <title>This Week (05.23.10)</title>
+            <itunes:author>ABC News</itunes:author>
+            <description>Chairmen of the DNC and RNC on &quot;This Week&quot; react to Tuesday&apos;s primaries.</description>
+            <itunes:subtitle>Chairmen of the DNC and RNC on &quot;This Week&quot; react to Tuesday&apos;s primaries.</itunes:subtitle> 
+            <itunes:summary>Chairmen of the DNC and RNC on &quot;This Week&quot; react to Tuesday&apos;s primaries.</itunes:summary> 
+            <enclosure url="http://a.media.abcnews.com/podcasts/100523_tw_pod.mp3" length="" type="audio/mpeg" />
+<guid>http://a.media.abcnews.com/podcasts/100523_tw_pod.mp3</guid>
+<pubDate>Sun, 23 May 2010 11:46:45 EST</pubDate>
+
+            <category>News</category>
+            <itunes:explicit>No</itunes:explicit>
+        
+        <itunes:duration>00:00</itunes:duration>
+            <itunes:keywords>abc news interview, time kaine, michael steele, midterm, election, primaries, reaction, jake tapper, politics</itunes:keywords>         
+            <image>
+            <url>http://a.abcnews.com/podcast/images/300_300_thisweek_tile.jpg</url> 
+            <title>This Week</title>
+            <link>http://www.abcnews.com/Technology/Podcasting/</link>
+            </image> 
+        </item>
+                
+        <item>
+            <title>This Week (05.16.10)</title>
+            <itunes:author>ABC News</itunes:author>
+            <description>Leading Senators on the Judiciary Committee discuss on the Kagan nomination.</description>
+            <itunes:subtitle>Leading Senators on the Judiciary Committee discuss on the Kagan nomination.</itunes:subtitle> 
+            <itunes:summary>Leading Senators on the Judiciary Committee discuss on the Kagan nomination.</itunes:summary> 
+            <enclosure url="http://a.media.abcnews.com/podcasts/100516_tw_pod.mp3" length="" type="audio/mpeg" />
+<guid>http://a.media.abcnews.com/podcasts/100516_tw_pod.mp3</guid>
+<pubDate>Sun, 16 May 2010 09:38:02 EST</pubDate>
+
+            <category>News</category>
+            <itunes:explicit>No</itunes:explicit>
+        
+        <itunes:duration>00:00</itunes:duration>
+            <itunes:keywords>abc news Jake Tapper, Patrick Leahy, Jeff Sessions, Elena Kagan, This Week, politics</itunes:keywords>         
+            <image>
+            <url>http://a.abcnews.com/podcast/images/300_300_thisweek_tile.jpg</url> 
+            <title>This Week</title>
+            <link>http://www.abcnews.com/Technology/Podcasting/</link>
+            </image> 
+        </item>
+
+</channel>
+</rss>

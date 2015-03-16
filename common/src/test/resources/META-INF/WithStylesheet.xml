@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" media="screen" href="/~d/styles/rss2enclosuresfull.xsl"?><?xml-stylesheet type="text/css" media="screen" href="http://feeds.feedburner.com/~d/styles/itemcontent.css"?><rss xmlns:itunes="http://www.itunes.com/DTDs/Podcast-1.0.dtd" xmlns:feedburner="http://rssnamespace.org/feedburner/ext/1.0" version="2.0"><?xml-stylesheet href="http://www.wildebeat.net/main.css" type="text/css"?>
+	<channel>
+		<title>The WildeBeat</title>
+		<link>http://www.wildebeat.net/index.cgi</link>
+		<description>"The audio journal about getting into the wilderness." For 10 minutes each week, we help you explore and appreciate America's wilderness.  Listen to The Wildebeat to explore new places, learn safe and responsible skills, and prepare to get into the wilderness!  You don't need to do extreme sports to enjoy nature and being outdoors; anyone can enjoy backcountry activities, such as camping, hiking, backpacking, horseback riding, rafting, kayaking, canoeing, climbing, mountaineering, skiing, or snowshoeing.  We're a non-profit, listener-supported educational service of Earth Island Institute.  (For a complete audio archive, please visit our web site: www.wildebeat.net.)</description>
+		<itunes:image href="http://www.wildebeat.net/images/WildeBeatLogo.jpg" />
+		<image>
+			<url>http://www.wildebeat.net/images/WildeBeatLogo-150.jpg</url>
+			<title>The WildeBeat</title>
+			<link>http://www.wildebeat.net/index.cgi</link>
+		</image>
+		<category>Outdoor Recreation</category>
+		<language>en</language>
+		<copyright>This work is licensed under a Creative Commons Attribution-Noncommercial-No Derivative Works 3.0 License.</copyright>
+		<generator>Blosxom 2.01</generator>
+		<ttl>120</ttl>
+		<itunes:explicit>clean</itunes:explicit>
+		<itunes:subtitle>The Wilderness News Beat.</itunes:subtitle>
+		<itunes:summary>"The audio journal about getting into the wilderness." For 10 minutes each week, we help you explore and appreciate America's wilderness.  Listen to The Wildebeat to explore new places, learn safe and responsible skills, and prepare to get into the wilderness!  You don't need to do extreme sports to enjoy nature and being outdoors; anyone can enjoy backcountry activities, such as camping, hiking, backpacking, horseback riding, rafting, kayaking, canoeing, climbing, mountaineering, skiing, or snowshoeing.  We're a non-profit, listener-supported educational service of Earth Island Institute.  (For a complete audio archive, please visit our web site: www.wildebeat.net.)</itunes:summary>
+	<itunes:keywords>wilderness, nature, outdoor, outdoors, mountaineering, camping, environment, adventure, hiking, backpacking, backcountry, horseback riding, rafting, kayaking, canoeing, climbing, skiing, snowshoeing</itunes:keywords>
+		<itunes:author>Steve Sergeant for Earth Island Institute</itunes:author>
+		<itunes:owner>
+			<itunes:name>Steve Sergeant</itunes:name>
+			<itunes:email>webmaster@wildebeat.net</itunes:email>
+		</itunes:owner>
+		<itunes:category text="Sports &amp; Recreation"><itunes:category text="Outdoor" /></itunes:category>
+		<itunes:category text="Health"><itunes:category text="Fitness &amp; Nutrition" /></itunes:category>
+		<itunes:category text="Society &amp; Culture"><itunes:category text="Places &amp; Travel" /></itunes:category>
+		
+<feedburner:info uri="thewildebeat" /><atom10:link xmlns:atom10="http://www.w3.org/2005/Atom" rel="hub" href="http://pubsubhubbub.appspot.com/" /><atom10:link xmlns:atom10="http://www.w3.org/2005/Atom" rel="self" type="application/rss+xml" href="http://www.wildebeat.net/shows/?flav=rss" /><feedburner:browserFriendly>This is an XML content feed. It is intended to be viewed in a newsreader or syndicated to another site, subject to copyright and fair use.</feedburner:browserFriendly><item>
+	<title>WildeBeat Promo Clip</title>
+	<link>http://www.wildebeat.net/about.shtml</link>
+	<itunes:subtitle>45-second intro to the show.</itunes:subtitle>
+	<description>&lt;p&gt;This is a 45 second promotional clip about the show.&lt;/p&gt;&lt;ul&gt;&lt;li style="list-style-image: url(http://www.wildebeat.net/icons/sound1.gif)"&gt;&lt;a href="http://www.wildebeat.net/audio/WildeBeat-Promo2.mp3"&gt;WildeBeat Promo [MP3 format; length 0:45; 792,815 bytes]&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;!-- PCA Claim code: 4b87db8c80785b7e66dc6a6b319b9288 --&gt;</description>
+	<itunes:summary>This is a 45 second promotional clip describing the show.</itunes:summary>
+	
+	<enclosure url="http://www.wildebeat.net/audio/WildeBeat-Promo2.mp3" type="audio/mpeg" length="481198" />
+	<itunes:duration>0:45</itunes:duration>
+	<pubDate>Fri, 29 Apr 2005 08:55:01 -0800</pubDate>
+	<guid isPermaLink="true">http://www.wildebeat.net/about.html</guid>
+	<author>webmaster@wildebeat.net (Steve Sergeant)</author>
+	<itunes:author>Steve Sergeant</itunes:author>
+	<itunes:keywords>wilderness, outdoor, hiking, camping, backpacking, horseback riding, rafting, kayaking, canoeing, climbing, skiing, snowshoeing</itunes:keywords>
+</item>
+
+<item>
+	<title>Announcement: A New Show</title>
+	<link>http://www.wildebeat.net/index.cgi/2008/11/06#E163</link>
+	<itunes:subtitle>Announcing our change in format.</itunes:subtitle>
+	<description>
+&lt;p&gt;&lt;big&gt;This is a special announcement in place of our regular show.&lt;/big&gt;&lt;/p&gt;
+
+&lt;p&gt;Steve announces a change in our format and our production schedule.  Our future programs will be presented in a longer format on roughly a monthly schedule.  We expect to release the first in our new series of programs in December.&lt;/p&gt;
+
+&lt;ul&gt;&lt;li style="list-style-image: url(http://www.wildebeat.net/icons/sound1.gif)"&gt;&lt;a href="http://www.wildebeat.net/audio/WildeBeat-E163.mp3" &gt;Special Announcement on November 6, 2008 [MP3 format; length 6:32; 3,133,896 bytes]&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
+
+&lt;br clear="all" /&gt;
+
+&lt;!-- 200811062300 --&gt;
+
+		&lt;p style="border: 1px solid black; padding: 2px;"&gt;&lt;a href="https://www.earthislandprojects.org/wildebeat/donate.html"&gt;JOIN NOW --
+Help us help more folks to appreciate our wild public lands.&lt;/a&gt;&lt;/p&gt;
+</description>
+	<itunes:summary>
+&lt;p&gt;&lt;big&gt;This is a special announcement in place of our regular show.&lt;/big&gt;&lt;/p&gt;
+
+&lt;p&gt;Steve announces a change in our format and our production schedule.  Our future programs will be presented in a longer format on roughly a monthly schedule.  We expect to release the first in our new series of programs in December.&lt;/p&gt;
+
+&lt;ul&gt;&lt;li style="list-style-image: url(http://www.wildebeat.net/icons/sound1.gif)"&gt;&lt;a href="http://www.wildebeat.net/audio/WildeBeat-E163.mp3" &gt;Special Announcement on November 6, 2008 [MP3 format; length 6:32; 3,133,896 bytes]&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
+
+&lt;br clear="all" /&gt;
+
+&lt;!-- 200811062300 --&gt;
+
+For a complete audio archive, and to find out more, visit: www.wildebeat.net
+	</itunes:summary>
+	
+	<enclosure url="http://www.wildebeat.net/audio/WildeBeat-E163.mp3" type="audio/mpeg" length="3133896" />
+
+	<itunes:duration>6:32</itunes:duration>
+	<pubDate>Thu, 06 Nov 2008 23:00:00 PST</pubDate>
+	<guid isPermaLink="true">http://www.wildebeat.net/index.cgi/2008/11/06#E163</guid>
+	<author>webmaster@wildebeat.net (Steve Sergeant)</author>
+	<itunes:author>Steve Sergeant</itunes:author>
+	<itunes:keywords>wilderness, nature, outdoors, hiking, backpacking, horseback riding, rafting, kayaking, canoeing, climbing, skiing, snowshoeing</itunes:keywords>
+</item>
+
+
+	</channel>
+</rss>

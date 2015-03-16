@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  IF YOU ARE VIEWING THIS PAGE OF XML CODE, BUT THOUGHT YOU WERE CLICKING TO SUBSCRIBE TO OUR PODCAST, then please copy the URL from the address bar window above, and then paste it into the subscription function of your podcast application -->
+<rss 
+xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+xmlns:podbridge="http:www.podbridge.com/podbridge-ad.dtd" version="2.0">
+
+	<channel>
+		<title>NBC Meet the Press (audio)</title>
+		<itunes:author>NBC News</itunes:author>
+		<description>Listen to NBC &#39;s &quot;Meet the Press,&quot; featuring headline-making interviews with world leaders and U.S. newsmakers every Sunday morning. This audio podcast, published each Sunday by MSNBC.com, brings you each show in its entirety. For more from &quot;Meet the Press&quot; visit http://mtp.msnbc.com</description>
+		<itunes:summary>Listen to NBC &#39;s &quot;Meet the Press,&quot; featuring headline-making interviews with world leaders and U.S. newsmakers every Sunday morning. This audio podcast, published each Sunday by MSNBC.com, brings you each show in its entirety. For more from &quot;Meet the Press&quot; visit http://mtp.msnbc.com</itunes:summary>
+		<itunes:subtitle>Meet the Press audio from NBC News and MSNBC.com</itunes:subtitle>
+		<link>http://www.mtp.msnbc.com</link>
+		<language>en-us</language>
+		<itunes:keywords>russert,politics,political,government,congress,president,campaign,policy,debate,analysis,public,issues</itunes:keywords>
+		<copyright>Copyright &#xA9; 2010 MSNBC Interactive News LLC</copyright>
+		<itunes:owner>
+			<itunes:name>MSNBC Interactive News LLC</itunes:name>
+			<itunes:email>multimedia@msnbc.com?subject=Podcasts</itunes:email>
+		</itunes:owner>
+		<itunes:image href="http://msnbc.vo.llnwd.net/e1/audio/podcast/images/pd_mtp.jpg"/>
+		<image>
+			<title>NBC Meet the Press (audio)</title>
+			<url>http://msnbc.vo.llnwd.net/e1/audio/podcast/images/pd_mtp.jpg</url>
+			<link>http://www.mtp.msnbc.com</link>
+		</image>
+		<itunes:category text="News &amp; Politics"/>
+		<itunes:explicit>No</itunes:explicit>
+		<pubDate>Sun, 13 Jun 2010 09:30:23 PST</pubDate>
+		<generator>PDCST-Create V1.6.5a</generator>
+
+		<item>
+			<title>NBC Meet the Press (audio) - 06-13-2010-075727</title>
+			<description>Listen to NBC &#39;s &quot;Meet the Press,&quot; featuring headline-making interviews with world leaders and U.S. newsmakers every Sunday morning. This audio podcast, published each Sunday by MSNBC.com, brings you each show in its entirety. For more from &quot;Meet the Press&quot; visit http://mtp.msnbc.com</description>
+			<itunes:duration>48:32</itunes:duration>
+			<podbridge:ads>
+				<slot timecode="0:0:0.0" max="90"/>
+				<slot timecode="end" max="90"/>
+			</podbridge:ads>
+			<guid isPermaLink="true">http://msnbcpod.rd.llnwd.net/e1/audio/podcast/pd_mtp-06-13-2010-075727.mp3</guid>
+			<enclosure url="http://msnbcpod.rd.llnwd.net/e1/audio/podcast/pd_mtp-06-13-2010-075727.mp3" length="11651200" type="audio/mpeg"/>
+			<pubDate>Sun, 13 Jun 2010 09:30:23 PST</pubDate>
+		</item>
+	</channel>
+</rss>
