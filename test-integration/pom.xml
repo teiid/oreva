@@ -6,7 +6,7 @@
   <packaging>jar</packaging>
 
   <parent>
-    <groupId>org.oreva</groupId>
+    <groupId>org.jboss.oreva</groupId>
     <artifactId>parent</artifactId>
     <version>0.8.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
@@ -14,13 +14,13 @@
 
    <dependencies>
       <dependency>
-      <groupId>org.oreva</groupId>
+      <groupId>org.jboss.oreva</groupId>
       <artifactId>odata-core</artifactId>
       <version>${project.version}</version>
     </dependency>
    
    <dependency>
-      <groupId>org.oreva</groupId>
+      <groupId>org.jboss.oreva</groupId>
       <artifactId>odata-core</artifactId>
       <type>test-jar</type>
       <version>${project.version}</version>
