@@ -1,5 +1,6 @@
 package org.odata4j.core;
 
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Time;
@@ -456,6 +457,17 @@ public class OProperties {
    */
   public static OProperty<UnsignedByte> byte_(String name, UnsignedByte value) {
     return new Impl<UnsignedByte>(name, EdmSimpleType.BYTE, value);
+  }
+
+  /**
+   * Creates a new inputStream OData property with {@link EdmSimpleType#INPUTSTREAM}
+   *
+   * @param name  the property name
+   * @param value  the property value
+   * @return a new OData property instance
+   */
+  public static OProperty<InputStream> inputStream(String name, InputStream value) {
+    return new Impl<InputStream>(name, EdmSimpleType.STREAM, value);
   }
 
   /**

@@ -38,6 +38,8 @@ public interface ODataClient {
 
   ODataClientResponse createEntity(ODataClientRequest request) throws ODataProducerException;
 
+  List<ODataClientBatchResponse> batchRequest(FormatType formatType, ODataClientRequest batchRequest, List<?> childRequests) throws ODataProducerException;
+
   void updateEntity(ODataClientRequest request) throws ODataProducerException;
 
   void deleteEntity(ODataClientRequest request) throws ODataProducerException;
@@ -53,4 +55,6 @@ public interface ODataClient {
   String requestBody(FormatType formatType, ODataClientRequest request) throws ODataProducerException;
 
   Reader getFeedReader(ODataClientResponse response);
+
+  Reader getFeedReader(String payload);
 }

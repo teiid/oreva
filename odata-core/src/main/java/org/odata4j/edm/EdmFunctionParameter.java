@@ -23,9 +23,10 @@ public class EdmFunctionParameter extends EdmItem {
   private final Integer maxLength;
   private final Integer precision;
   private final Integer scale;
+  private final Boolean bound;
 
   private EdmFunctionParameter(String name, EdmType type, Mode mode, Boolean nullable,
-      Integer maxLength, Integer precision, Integer scale, EdmDocumentation doc,
+      Integer maxLength, Integer precision, Integer scale, Boolean bound, EdmDocumentation doc,
       ImmutableList<EdmAnnotation<?>> annots, ImmutableList<EdmAnnotation<?>> annotElements) {
     super(doc, annots, annotElements);
     this.name = name;
@@ -35,6 +36,7 @@ public class EdmFunctionParameter extends EdmItem {
     this.maxLength = maxLength;
     this.precision = precision;
     this.scale = scale;
+    this.bound = bound;
   }
 
   public String getName() {
@@ -65,6 +67,10 @@ public class EdmFunctionParameter extends EdmItem {
     return scale;
   }
 
+  public Boolean isBound() {
+    return bound;
+  }
+  
   public static Builder newBuilder() {
     return new Builder();
   }
@@ -84,6 +90,7 @@ public class EdmFunctionParameter extends EdmItem {
     private Integer maxLength;
     private Integer precision;
     private Integer scale;
+    private Boolean bound;
 
     @Override
     Builder newBuilder(EdmFunctionParameter functionParameter, BuilderContext context) {
@@ -91,8 +98,17 @@ public class EdmFunctionParameter extends EdmItem {
     }
 
     public EdmFunctionParameter build() {
-      return new EdmFunctionParameter(name, typeBuilder != null ? typeBuilder.build() : type,
-          mode, nullable, maxLength, precision, scale, getDocumentation(), ImmutableList.copyOf(getAnnotations()),
+      return new EdmFunctionParameter(
+          name, 
+          typeBuilder != null ? typeBuilder.build() : type,
+          mode, 
+          nullable, 
+          maxLength, 
+          precision, 
+          scale, 
+          bound != null ? bound : false, 
+          getDocumentation(), 
+          ImmutableList.copyOf(getAnnotations()),
           ImmutableList.copyOf(getAnnotationElements()));
     }
 
@@ -136,6 +152,11 @@ public class EdmFunctionParameter extends EdmItem {
       return this;
     }
 
+    public Builder setBound(Boolean bound){
+      this.bound = bound;
+      return this;
+    }
+    
     public Builder input(String name, EdmType type) {
       this.mode = Mode.In;
       this.name = name;

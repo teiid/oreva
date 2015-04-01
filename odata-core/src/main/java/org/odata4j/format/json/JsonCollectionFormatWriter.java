@@ -21,6 +21,10 @@ public class JsonCollectionFormatWriter extends JsonFormatWriter<CollectionRespo
   protected void writeContent(UriInfo uriInfo, JsonWriter jw, CollectionResponse<?> target) {
     OCollection<?> c = target.getCollection();
     EdmType ctype = c.getType();
+    
+    jw.startObject();    
+    jw.writeName("results");
+    
     jw.startArray();
     {
       boolean isFirst = true;
@@ -40,6 +44,7 @@ public class JsonCollectionFormatWriter extends JsonFormatWriter<CollectionRespo
       }
     }
     jw.endArray();
+    jw.endObject();
   }
 
 }

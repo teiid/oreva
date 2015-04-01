@@ -47,7 +47,7 @@ public class JsonFormatParserTest {
     EdmSchema.Builder schema = new EdmSchema.Builder().addEntityContainers(container).addEntityTypes(productsEntityType);
     EdmDataServices metadata = new EdmDataServices.Builder().addSchemas(schema).build();
 
-    FormatParser<Feed> formatParser = FormatParserFactory.getParser(Feed.class, FormatType.JSON, new Settings(ODataVersion.V1, metadata, "Products", null));
+    FormatParser<Feed> formatParser = FormatParserFactory.getParser(Feed.class, FormatType.JSONVERBOSE, new Settings(ODataVersion.V1, metadata, "Products", null, null));
     assertThat(formatParser.parse(json), notNullValue());
   }
 }

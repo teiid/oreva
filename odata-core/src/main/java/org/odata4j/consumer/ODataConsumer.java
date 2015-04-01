@@ -1,8 +1,12 @@
 package org.odata4j.consumer;
 
+import java.io.InputStream;
+
 import org.core4j.Enumerable;
 import org.odata4j.consumer.behaviors.OClientBehavior;
 import org.odata4j.core.EntitySetInfo;
+import org.odata4j.core.OBatchRequest;
+import org.odata4j.core.OChangeSetRequest;
 import org.odata4j.core.OCountRequest;
 import org.odata4j.core.OCreateRequest;
 import org.odata4j.core.OEntity;
@@ -12,11 +16,14 @@ import org.odata4j.core.OEntityId;
 import org.odata4j.core.OEntityKey;
 import org.odata4j.core.OEntityRequest;
 import org.odata4j.core.OFunctionRequest;
+import org.odata4j.core.OGetNamedStreamRequest;
+import org.odata4j.core.OModifyLinkRequest;
 import org.odata4j.core.OModifyRequest;
 import org.odata4j.core.OObject;
 import org.odata4j.core.OQueryRequest;
 import org.odata4j.core.ORelatedEntitiesLink;
 import org.odata4j.core.ORelatedEntityLink;
+import org.odata4j.core.OUpdateNamedStreamRequest;
 import org.odata4j.edm.EdmDataServices;
 import org.odata4j.exceptions.ODataProducerException;
 import org.odata4j.format.FormatType;
@@ -419,4 +426,35 @@ public interface ODataConsumer {
    * @return a new count-request builder
    */
   OCountRequest getEntitiesCount(String entitySetName);
+
+  /**
+   * Returns a batch request, which can be sent to the server in one request.
+   * @return a new OBatchRequest builder.
+   */
+  OBatchRequest batchRequest();
+
+  /**
+   * Returns a change set request, which can be added into batch request.
+   * All the operation within the change set will be under one transaction.
+   * Only CUD requests are allowed inside change set request. 
+   * @return a new change set request builder.
+   */
+  OChangeSetRequest changeSetRequest();
+  
+  /**
+   * Return a get named stream request.
+   * @param entity the entity whose named stream is going to return.
+   * @param name the stream resource name.
+   * @return the request.
+   */
+  OGetNamedStreamRequest getNamedStream(OEntity entity, String name);
+  
+  /**
+   * Return a update named stream request.
+   * @param entity the entity whose named stream is going to return.
+   * @param name the stream resource name.
+   * @param is the input stream.
+   * @return the request.
+   */
+  OUpdateNamedStreamRequest updateNamedStream(OEntity entity, String name, InputStream is);
 }

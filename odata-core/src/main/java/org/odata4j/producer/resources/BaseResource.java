@@ -4,15 +4,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.ContextResolver;
-import javax.ws.rs.ext.Providers;
 
 import org.odata4j.core.ODataConstants;
 import org.odata4j.core.ODataVersion;
@@ -30,7 +27,6 @@ import org.odata4j.internal.InternalUtil;
 import org.odata4j.producer.ODataContext;
 import org.odata4j.producer.ODataProducer;
 import org.odata4j.producer.OMediaLinkExtension;
-import org.odata4j.producer.OMediaLinkExtensions;
 
 public abstract class BaseResource {
 
@@ -39,12 +35,14 @@ public abstract class BaseResource {
     // see spec [ms-odata] section 1.7
 
     ODataVersion version = InternalUtil.getDataServiceVersion(httpHeaders.getRequestHeaders().getFirst(ODataConstants.Headers.DATA_SERVICE_VERSION));
-    return convertFromString(payload, httpHeaders.getMediaType(), version, metadata, entitySetName, entityKey);
+    return convertFromString(payload, httpHeaders.getMediaType(), version, metadata, entitySetName, entityKey, false);
   }
 
-  private static OEntity convertFromString(String requestEntity, MediaType type, ODataVersion version, EdmDataServices metadata, String entitySetName, OEntityKey entityKey) throws NotAcceptableException {
+  protected static OEntity convertFromString(String requestEntity, MediaType type, ODataVersion version, EdmDataServices metadata, String entitySetName, OEntityKey entityKey, Boolean isResponse) throws NotAcceptableException {
+    //previously we are hard coding it to have false, since we always get the entity to be created as name, value pair. 
+    //setting the isResponse to true only when we are building the OEntity from the response as it contain root element, metadata, data,etc
     FormatParser<Entry> parser = FormatParserFactory.getParser(Entry.class, type,
-        new Settings(version, metadata, entitySetName, entityKey, false));
+        new Settings(version, metadata, entitySetName, entityKey, null, isResponse));
     Entry entry = parser.parse(new StringReader(requestEntity));
     return entry.getEntity();
   }
@@ -55,7 +53,7 @@ public abstract class BaseResource {
 
     ODataVersion version = InternalUtil.getDataServiceVersion(httpHeaders.getRequestHeaders().getFirst(ODataConstants.Headers.DATA_SERVICE_VERSION));
     FormatParser<Entry> parser = FormatParserFactory.getParser(Entry.class, httpHeaders.getMediaType(),
-        new Settings(version, metadata, entitySetName, entityKey, false));
+        new Settings(version, metadata, entitySetName, entityKey, null, false));
 
     String charset = httpHeaders.getMediaType().getParameters().get("charset");
     if (charset == null) {
@@ -72,13 +70,13 @@ public abstract class BaseResource {
   protected OMediaLinkExtension getMediaLinkExtension(HttpHeaders httpHeaders, UriInfo uriInfo, EdmEntitySet entitySet, ODataProducer producer,
       ODataContext context) {
 
-    OMediaLinkExtensions mediaLinkExtensions = producer.findExtension(OMediaLinkExtensions.class);
+    OMediaLinkExtension mediaLinkExtension = producer.findExtension(OMediaLinkExtension.class);
 
-    if (mediaLinkExtensions == null) {
+    if (mediaLinkExtension == null) {
       throw new NotImplementedException();
     }
 
-    return mediaLinkExtensions.create(context);
+    return mediaLinkExtension;
   }
 
   protected OEntity createOrUpdateMediaLinkEntry(HttpHeaders httpHeaders,
@@ -98,25 +96,10 @@ public abstract class BaseResource {
         ? mediaLinkExtension.createMediaLinkEntry(context, entitySet, httpHeaders)
         : mediaLinkExtension.getMediaLinkEntryForUpdateOrDelete(context, entitySet, key, httpHeaders);
 
-    // now get a stream we can write the incoming bytes into.
-    OutputStream outStream = key == null
-        ? mediaLinkExtension.getOutputStreamForMediaLinkEntryCreate(context, mle, null /*etag*/, null /*QueryInfo, may get rid of this */)
-        : mediaLinkExtension.getOutputStreamForMediaLinkEntryUpdate(context, mle, null, null);
-
     // write the stream
-    try {
-      InternalUtil.copyInputToOutput(payload, outStream);
-    } finally {
-      outStream.close();
-    }
+    mle.setMediaLinkStream(payload);
 
     // more info about the mle may be available now.
-    return mediaLinkExtension.updateMediaLinkEntry(context, mle, outStream);
+    return mle;
   }
-  
-	static ODataProducer getODataProducer(Providers providers) {
-		ContextResolver<ODataProducer> producerResolver = providers.getContextResolver(ODataProducer.class,MediaType.WILDCARD_TYPE);
-		return producerResolver.getContext(ODataProducer.class);
-	}
-  
 }

@@ -10,7 +10,7 @@ import org.odata4j.exceptions.ODataProducerException;
  *
  * @param <T>  the entity representation as a java type
  */
-public interface OQueryRequest<T> {
+public interface OQueryRequest<T> extends OBatchSupport {
 
   /**
    * Sends the query-request to the OData service, returning a client-side {@link Enumerable} for subsequent in-memory operations.

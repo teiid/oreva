@@ -3,7 +3,9 @@ package org.odata4j.format;
 import org.odata4j.core.ODataVersion;
 import org.odata4j.core.OEntityKey;
 import org.odata4j.edm.EdmDataServices;
+import org.odata4j.edm.EdmFunctionImport;
 import org.odata4j.edm.EdmType;
+import org.odata4j.internal.FeedCustomizationMapping;
 
 public class Settings {
 
@@ -11,29 +13,39 @@ public class Settings {
   public final EdmDataServices metadata;
   public final String entitySetName;
   public final OEntityKey entityKey;
+  public final FeedCustomizationMapping fcMapping;
   public final boolean isResponse;
   public final EdmType parseType;
+  public final EdmFunctionImport parseFunction;
 
   public Settings(ODataVersion version, EdmDataServices metadata,
-      String entitySetName, OEntityKey entityKey) {
-    this(version, metadata, entitySetName, entityKey, true, null);
+      String entitySetName, OEntityKey entityKey, FeedCustomizationMapping fcMapping) {
+    this(version, metadata, entitySetName, entityKey, fcMapping, true, null, null);
   }
 
   public Settings(ODataVersion version, EdmDataServices metadata,
-      String entitySetName, OEntityKey entityKey,
+      String entitySetName, OEntityKey entityKey, FeedCustomizationMapping fcMapping,
       boolean isResponse) {
-    this(version, metadata, entitySetName, entityKey, isResponse, null);
+    this(version, metadata, entitySetName, entityKey, fcMapping, isResponse, null, null);
   }
 
   public Settings(ODataVersion version, EdmDataServices metadata,
-      String entitySetName, OEntityKey entityKey,
+      String entitySetName, OEntityKey entityKey, FeedCustomizationMapping fcMapping,
       boolean isResponse, EdmType parseType) {
+    this(version, metadata, entitySetName, entityKey, fcMapping, isResponse, parseType, null);
+  }
+
+  public Settings(ODataVersion version, EdmDataServices metadata,
+      String entitySetName, OEntityKey entityKey, FeedCustomizationMapping fcMapping,
+      boolean isResponse, EdmType parseType, EdmFunctionImport parseFunction) {
     this.version = version;
     this.metadata = metadata;
     this.entitySetName = entitySetName;
     this.entityKey = entityKey;
+    this.fcMapping = fcMapping;
     this.isResponse = isResponse;
     this.parseType = parseType;
+    this.parseFunction = parseFunction;
   }
 
 }

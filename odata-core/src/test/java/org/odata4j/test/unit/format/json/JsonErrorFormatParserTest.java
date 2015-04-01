@@ -13,7 +13,7 @@ public class JsonErrorFormatParserTest extends AbstractErrorFormatParserTest {
 
   @BeforeClass
   public static void setupClass() throws Exception {
-    formatParser = FormatParserFactory.getParser(OError.class, FormatType.JSON, null);
+    formatParser = FormatParserFactory.getParser(OError.class, FormatType.JSONVERBOSE, null);
   }
 
   @Test(expected = IllegalArgumentException.class)

@@ -3,6 +3,7 @@ package org.odata4j.format.xml;
 import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 
@@ -12,10 +13,12 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.odata4j.core.OAtomEntity;
 import org.odata4j.core.OAtomStreamEntity;
+import org.odata4j.core.OBindableEntity;
 import org.odata4j.core.OCollection;
 import org.odata4j.core.OComplexObject;
 import org.odata4j.core.OEntity;
 import org.odata4j.core.OLink;
+import org.odata4j.core.ONamedStreamLink;
 import org.odata4j.core.OObject;
 import org.odata4j.core.OProperty;
 import org.odata4j.core.ORelatedEntitiesLinkInline;
@@ -23,6 +26,7 @@ import org.odata4j.core.ORelatedEntityLinkInline;
 import org.odata4j.core.OSimpleObject;
 import org.odata4j.edm.EdmCollectionType;
 import org.odata4j.edm.EdmEntitySet;
+import org.odata4j.edm.EdmFunctionImport;
 import org.odata4j.edm.EdmSimpleType;
 import org.odata4j.edm.EdmType;
 import org.odata4j.internal.InternalUtil;
@@ -42,6 +46,8 @@ public class XmlFormatWriter {
   public static final String related = "http://schemas.microsoft.com/ado/2007/08/dataservices/related/";
   public static final String atom_feed_content_type = "application/atom+xml;type=feed";
   public static final String atom_entry_content_type = "application/atom+xml;type=entry";
+  public static final String edit_media = "http://schemas.microsoft.com/ado/2007/08/dataservices/edit-media/";
+  public static final String mediaresource = "http://schemas.microsoft.com/ado/2007/08/dataservices/mediaresource/";
 
   protected void writeProperties(XMLWriter2 writer, List<OProperty<?>> properties) {
     for (OProperty<?> prop : properties) {
@@ -70,7 +76,7 @@ public class XmlFormatWriter {
         String typename = type.getFullyQualifiedTypeName();
         if (value instanceof OCollection) {
           EdmCollectionType collectionType = (EdmCollectionType) type;
-          typename = "Bag(" + collectionType.getItemType().getFullyQualifiedTypeName() + ")";
+          typename = "Collection(" + collectionType.getItemType().getFullyQualifiedTypeName() + ")";
         }
         writer.writeAttribute(new QName2(m, "type", "m"), typename);
       }
@@ -158,6 +164,11 @@ public class XmlFormatWriter {
         if (value != null) {
           sValue = InternalUtil.formatDateTimeOffsetForXml((DateTime) value);
         }
+      } else if (type == EdmSimpleType.STREAM) {
+        byte[] bValue = (byte[]) value;
+        if (value != null) {
+          sValue = Base64.encodeBase64String(bValue);
+        }
       } else {
         throw new UnsupportedOperationException("Implement " + type);
       }
@@ -232,7 +243,7 @@ public class XmlFormatWriter {
     writeElement(writer, "name", oae.getAtomEntityAuthor());
     writer.endElement("author");
 
-    if (isResponse) {
+    if (isResponse && (ees.getType().getHasStream() == null || !ees.getType().getHasStream())) {
       writeElement(writer, "link", null, "rel", "edit", "title", ees.getType().getName(), "href", relid);
     }
 
@@ -240,6 +251,11 @@ public class XmlFormatWriter {
       if (isResponse) {
         // the producer has populated the link collection, we just what he gave us.
         for (OLink link : entityLinks) {
+          if (link instanceof ONamedStreamLink) {
+            // for named stream link, 
+            writeNameStreamLink(writer, link, relid);
+            continue;
+          }
           String rel = related + link.getTitle();
           String type = (link.isCollection())
               ? atom_feed_content_type
@@ -295,14 +311,33 @@ public class XmlFormatWriter {
         "term", oe == null ? ees.getType().getFullyQualifiedTypeName() : oe.getEntityType().getFullyQualifiedTypeName(),
         "scheme", scheme);
 
+    //Dump Actions or Functions if any
+    if (oe != null) {
+      OBindableEntity bindableEntity = oe.findExtension(OBindableEntity.class);
+      if (bindableEntity != null) {
+        if (bindableEntity.getBindableActions().size() > 0) {
+          for (Map.Entry<String, EdmFunctionImport> entry : bindableEntity.getBindableActions().entrySet()) {
+            writeAction(writer, absid, entry.getKey(), entry.getValue());
+          }
+        }
+        if (bindableEntity.getBindableFunctions().size() > 0) {
+          for (Map.Entry<String, EdmFunctionImport> entry : bindableEntity.getBindableFunctions().entrySet()) {
+            writeFunction(writer, absid, entry.getKey(), entry.getValue());
+          }
+        }
+      }
+    }
+
     boolean hasStream = false;
     if (oe != null) {
       OAtomStreamEntity stream = oe.findExtension(OAtomStreamEntity.class);
-      if (stream != null) {
+      if (stream != null && isResponse && ees.getType().getHasStream() != null && ees.getType().getHasStream()) {
         hasStream = true;
+        writeElement(writer, "link", null, "rel", "edit-media", "title", ees.getType().getName(), "href", relid);
+        writeElement(writer, "link", null, "rel", "edit", "title", ees.getType().getName(), "href", relid);
         writer.startElement("content");
         writer.writeAttribute("type", stream.getAtomEntityType());
-        writer.writeAttribute("src", baseUri + stream.getAtomEntitySource());
+        writer.writeAttribute("src", relid + stream.getAtomEntitySource());
         writer.endElement("content");
       }
     }
@@ -321,6 +356,31 @@ public class XmlFormatWriter {
     }
     return absid;
 
+  }
+
+  private void writeNameStreamLink(XMLWriter2 writer, OLink link, String relid) {
+    String href = relid + "/"+ link.getHref();
+    writeElement(writer, "link", null,
+        "rel", link.getRelation(),
+        "type", link.getType(),
+        "title", link.getTitle(),
+        "href", href);
+  }
+
+  protected void writeFunction(XMLWriter2 writer, String entityHref, String fqFunctionName, EdmFunctionImport function) {
+    writer.startElement(new QName2(m, "function", "m"));
+    writer.writeAttribute("rel", function.getName());
+    writer.writeAttribute("title", function.getName());
+    writer.writeAttribute("target", entityHref + "/" + fqFunctionName);
+    writer.endElement("function");
+  }
+
+  protected void writeAction(XMLWriter2 writer, String entityHref, String fqActionName, EdmFunctionImport function) {
+    writer.startElement(new QName2(m, "action", "m"));
+    writer.writeAttribute("rel", function.getName());
+    writer.writeAttribute("title", function.getName());
+    writer.writeAttribute("target", entityHref + "/" + fqActionName);
+    writer.endElement("action");
   }
 
   protected void writeLinkInline(XMLWriter2 writer, OLink linkToInline,

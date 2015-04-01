@@ -1,5 +1,6 @@
 package org.odata4j.core;
 
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -81,10 +82,11 @@ public class OEntities {
    * @param entityTag  the entity-tag
    * @param properties  the entity properties, if any
    * @param links  the entity links, if any
+   * @param extensions  extensions to the entity
    * @return the new entity
    */
-  public static OEntity create(EdmEntitySet entitySet, EdmEntityType entityType, OEntityKey entityKey, String entityTag, List<OProperty<?>> properties, List<OLink> links) {
-    return new OEntityImpl(entitySet, entityType, entityKey, true, entityTag, properties, links);
+  public static OEntity create(EdmEntitySet entitySet, EdmEntityType entityType, OEntityKey entityKey, String entityTag, List<OProperty<?>> properties, List<OLink> links, Object... extensions) {
+    return new OEntityImpl(entitySet, entityType, entityKey, true, entityTag, properties, links, extensions);
   }
 
   /**
@@ -111,12 +113,14 @@ public class OEntities {
    * @param links  the entity links, if any
    * @param title  the Atom title
    * @param categoryTerm  the Atom category term
+   * @param extensions  extensions to the entity
    * @return the new entity
    */
-  public static OEntity create(EdmEntitySet entitySet, EdmEntityType entityType, OEntityKey entityKey, String entityTag, List<OProperty<?>> properties, List<OLink> links, String title, String categoryTerm) {
-    return new OEntityAtomImpl(entitySet, entityType, entityKey, true, entityTag, properties, links, title, categoryTerm);
+  public static OEntity create(EdmEntitySet entitySet, EdmEntityType entityType, OEntityKey entityKey, String entityTag, List<OProperty<?>> properties, List<OLink> links, String title, String categoryTerm, Object... extensions) {
+    return new OEntityAtomImpl(entitySet, entityType, entityKey, true, entityTag, properties, links, title, categoryTerm, extensions);
   }
 
+    
   /**
    * Creates a new request-entity with additional Atom information.
    * <p>A request-entity is a new entity that has not yet been created in an OData service, and therefore allowed to not have an entity-key.</p>
@@ -138,8 +142,8 @@ public class OEntities {
     private final String categoryTerm;
 
     public OEntityAtomImpl(EdmEntitySet entitySet, EdmEntityType entityType, OEntityKey entityKey, boolean entityKeyRequired, String entityTag,
-        List<OProperty<?>> properties, List<OLink> links, String title, String categoryTerm) {
-      super(entitySet, entityType, entityKey, entityKeyRequired, entityTag, properties, links);
+        List<OProperty<?>> properties, List<OLink> links, String title, String categoryTerm, Object... extensions) {
+      super(entitySet, entityType, entityKey, entityKeyRequired, entityTag, properties, links, extensions);
       this.title = title;
       this.categoryTerm = categoryTerm;
     }
@@ -164,6 +168,8 @@ public class OEntities {
     private final List<OLink> links;
     private final String entityTag;
     private final Collection<Object> extensions;
+    private InputStream mediaInputStream;
+    private String mediaStreamContentType;
 
     OEntityImpl(EdmEntitySet entitySet, EdmEntityType entityType,
         OEntityKey entityKey, boolean entityKeyRequired,
@@ -257,6 +263,26 @@ public class OEntities {
         }
       }
       return null;
+    }
+
+    @Override
+    public String getMediaTypeForStream() {
+      return this.mediaStreamContentType;
+    }
+
+    @Override
+    public InputStream getMediaLinkStream() {
+      return this.mediaInputStream;
+    }
+
+    @Override
+    public void setMediaLinkStream(InputStream inStream) {
+      this.mediaInputStream = inStream;
+    }
+
+    @Override
+    public void setMediaTypeForStream(String mediaTypeForStream) {
+      this.mediaStreamContentType = mediaTypeForStream;
     }
 
   }

@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -35,7 +34,6 @@ import org.odata4j.producer.EntityQueryInfo;
 import org.odata4j.producer.ODataContext;
 import org.odata4j.producer.ODataHeadersContext;
 import org.odata4j.producer.ODataProducer;
-import org.odata4j.producer.OMediaLinkExtensions;
 import org.odata4j.producer.QueryInfo;
 import org.odata4j.producer.resources.DefaultODataProducerProvider;
 import org.odata4j.test.integration.AbstractJettyHttpClientTest;
@@ -78,7 +76,7 @@ public class ContextTest extends AbstractJettyHttpClientTest {
     cookies.add("Cookie1=c1val");
     cookies.add("Cookie2=c2val");
     h.put("Set-Cookie", cookies);
-    h.put("Content-Type", Collections.singletonList("application/json"));
+    h.put("Content-Type", Collections.singletonList("application/json;odata=verbose"));
     return h;
   }
 
@@ -243,18 +241,6 @@ public class ContextTest extends AbstractJettyHttpClientTest {
 
     verify(producer).callFunction(context.capture(), any(EdmFunctionImport.class), any(Map.class), any(QueryInfo.class));
 
-    assertContext();
-  }
-
-  @Test
-  public void testMLE() throws IOException, Exception {
-
-    producer.extensionFactory = mock(OMediaLinkExtensions.class);
-
-    ContentExchange exchange = sendRequestWithHeaders(BASE_URI + "MLEs('foobar')/$value", myHeaders);
-
-    verify(producer).findExtension(OMediaLinkExtensions.class);
-    verify(producer.extensionFactory).create(context.capture());
     assertContext();
   }
 

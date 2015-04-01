@@ -3,6 +3,8 @@ package org.odata4j.edm;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.HttpMethod;
+
 import org.odata4j.core.ImmutableList;
 
 /**
@@ -16,20 +18,33 @@ import org.odata4j.core.ImmutableList;
  */
 public class EdmFunctionImport extends EdmItem {
 
+  public enum FunctionKind {
+    ServiceOperation, 
+    Function, 
+    Action
+  }
+
   private final String name;
   private final EdmEntitySet entitySet;
   private final EdmType returnType;
   private final String httpMethod;
+  private final boolean bindable;
+  private final boolean sideEffecting;
+  private final boolean alwaysBindable;
   private final ImmutableList<EdmFunctionParameter> parameters;
 
   private EdmFunctionImport(String name, EdmEntitySet entitySet, EdmType returnType,
-      String httpMethod, ImmutableList<EdmFunctionParameter> parameters, EdmDocumentation doc,
+      String httpMethod, boolean bindable, boolean sideEffecting, boolean alwaysBindable,
+      ImmutableList<EdmFunctionParameter> parameters, EdmDocumentation doc,
       ImmutableList<EdmAnnotation<?>> annots, ImmutableList<EdmAnnotation<?>> annotElements) {
     super(doc, annots, annotElements);
     this.name = name;
     this.entitySet = entitySet;
     this.returnType = returnType;
     this.httpMethod = httpMethod;
+    this.bindable = bindable;
+    this.sideEffecting = sideEffecting;
+    this.alwaysBindable = alwaysBindable;
     this.parameters = parameters;
   }
 
@@ -46,13 +61,66 @@ public class EdmFunctionImport extends EdmItem {
   }
 
   public String getHttpMethod() {
-    return httpMethod;
+    FunctionKind kind = getFunctionKind();
+    if (kind == FunctionKind.ServiceOperation){
+      return httpMethod;
+    } else if (kind == FunctionKind.Function){
+      return HttpMethod.GET;
+    } else {
+      return HttpMethod.POST;
+    }
+  }
+
+  public boolean isBindable() {
+    return bindable && parameters != null && parameters.size() > 0;
+  }
+
+  public EdmFunctionParameter getBoundParameter(){
+    if (bindable && parameters != null){
+      for (EdmFunctionParameter param : parameters){
+        if (param.isBound()){
+          return param;
+        }
+      }
+    }
+    return null;
+  }
+  
+  public EdmFunctionParameter getParameter(String name){
+    if (bindable && parameters != null){
+      for (EdmFunctionParameter param : parameters){
+        if (param.getName().equals(name)){
+          return param;
+        }
+      }
+    }
+    return null;
+  }
+  
+  public boolean isSideEffecting() {
+    return sideEffecting;
+  }
+
+  public boolean isAlwaysBindable() {
+    return alwaysBindable;
   }
 
   public List<EdmFunctionParameter> getParameters() {
     return parameters;
   }
 
+  public FunctionKind getFunctionKind() {
+    if (httpMethod != null){
+      return FunctionKind.ServiceOperation;
+    } else {
+      if (sideEffecting){
+        return FunctionKind.Action;
+      } else {
+        return FunctionKind.Function;
+      }
+    }
+  }
+  
   public static Builder newBuilder() {
     return new Builder();
   }
@@ -70,6 +138,9 @@ public class EdmFunctionImport extends EdmItem {
     private EdmType.Builder<?, ?> returnTypeBuilder;
     private String returnTypeName;
     private String httpMethod;
+    private boolean bindable;
+    private boolean sideEffecting;
+    private boolean alwaysBindable;
     private final List<EdmFunctionParameter.Builder> parameters = new ArrayList<EdmFunctionParameter.Builder>();
     private boolean isCollection;
 
@@ -79,18 +150,25 @@ public class EdmFunctionImport extends EdmItem {
       for (EdmFunctionParameter functionParameter : functionImport.parameters)
         functionParameters.add(EdmFunctionParameter.newBuilder(functionParameter, context));
       return new Builder().setName(functionImport.name).setEntitySet(functionImport.entitySet != null ? EdmEntitySet.newBuilder(functionImport.entitySet, context) : null)
-          .setReturnType(functionImport.returnType).setHttpMethod(functionImport.httpMethod).addParameters(functionParameters);
+          .setReturnType(functionImport.returnType)
+          .setHttpMethod(functionImport.httpMethod)
+          .setBindable(functionImport.bindable)
+          .setSideEffecting(functionImport.sideEffecting)
+          .setAlwaysBindable(functionImport.alwaysBindable)
+          .addParameters(functionParameters);
     }
 
     public EdmFunctionImport build() {
-      List<EdmFunctionParameter> parameters = new ArrayList<EdmFunctionParameter>();
-      for (EdmFunctionParameter.Builder parameter : this.parameters)
-        parameters.add(parameter.build());
+      List<EdmFunctionParameter> builtParameters = new ArrayList<EdmFunctionParameter>();
+      for (EdmFunctionParameter.Builder parameter : this.parameters){
+        builtParameters.add(parameter.build());
+      }
       EdmType returnType =
           this.returnType != null ? this.returnType
               : returnTypeBuilder != null ? returnTypeBuilder.build() : null;
       return new EdmFunctionImport(name, entitySet == null ? null : entitySet.build(), returnType, httpMethod,
-          ImmutableList.copyOf(parameters), getDocumentation(), ImmutableList.copyOf(getAnnotations()),
+          bindable, sideEffecting, alwaysBindable,
+          ImmutableList.copyOf(builtParameters), getDocumentation(), ImmutableList.copyOf(getAnnotations()),
           ImmutableList.copyOf(getAnnotationElements()));
     }
 
@@ -116,6 +194,21 @@ public class EdmFunctionImport extends EdmItem {
 
     public Builder setHttpMethod(String httpMethod) {
       this.httpMethod = httpMethod;
+      return this;
+    }
+
+    public Builder setBindable(boolean bindable) {
+      this.bindable = bindable;
+      return this;
+    }
+
+    public Builder setSideEffecting(boolean sideEffecting) {
+      this.sideEffecting = sideEffecting;
+      return this;
+    }
+
+    public Builder setAlwaysBindable(boolean alwaysBindable) {
+      this.alwaysBindable = alwaysBindable;
       return this;
     }
 
@@ -154,6 +247,18 @@ public class EdmFunctionImport extends EdmItem {
 
     public String getHttpMethod() {
       return httpMethod;
+    }
+
+    public boolean isBindable() {
+      return bindable;
+    }
+
+    public boolean isSideEffecting() {
+      return sideEffecting;
+    }
+
+    public boolean isAlwaysBindable() {
+      return alwaysBindable;
     }
 
     public List<EdmFunctionParameter.Builder> getParameters() {

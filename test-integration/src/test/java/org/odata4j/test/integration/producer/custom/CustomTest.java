@@ -1,25 +1,14 @@
 package org.odata4j.test.integration.producer.custom;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response.Status;
 
 import org.junit.Test;
 import org.odata4j.consumer.ODataConsumer;
 import org.odata4j.core.OCollection;
 import org.odata4j.core.OEntity;
-import org.odata4j.core.OEntityKey;
 import org.odata4j.core.OObject;
 import org.odata4j.core.OProperty;
 import org.odata4j.core.OSimpleObject;
@@ -35,7 +24,6 @@ import org.odata4j.edm.EdmSchema;
 import org.odata4j.edm.EdmSimpleType;
 import org.odata4j.edm.EdmStructuralType;
 import org.odata4j.edm.EdmType;
-import org.odata4j.exceptions.ODataProducerException;
 import org.odata4j.format.FormatType;
 
 public class CustomTest extends CustomBaseTest {
@@ -47,7 +35,25 @@ public class CustomTest extends CustomBaseTest {
   @Test
   public void testPropertiesJSON() throws Exception {
     dumpResourceJSON("Type1s");
+    testProperties(FormatType.JSONVERBOSE);
+  }
+
+  @Test
+  public void testPropertiesJSONMinimalMetadata() throws Exception {
+    dumpResourceJSON("Type1s");
     testProperties(FormatType.JSON);
+  }
+
+  @Test
+  public void testPropertiesJSONNometadata() throws Exception {
+    dumpResourceJSON("Type1s");
+    testProperties(FormatType.JSONLITENOMETADATA);
+  }
+
+  @Test
+  public void testPropertiesJSONFullMetadata() throws Exception {
+    dumpResourceJSON("Type1s");
+    testProperties(FormatType.JSONLITEFULLMETADATA);
   }
 
   @Test
@@ -106,13 +112,31 @@ public class CustomTest extends CustomBaseTest {
   public void testEdmxFormatParserTypeResolution() throws Exception {
     // when consumers parse an edm, they should only create one type object
     // for each unique type.
+    ODataConsumer c = createConsumer(FormatType.JSONVERBOSE);
+    checkForDups(c.getMetadata());
+  }
+
+  @Test
+  public void testEdmxFormatParserTypeResolutionMinimalMetadata() throws Exception {
     ODataConsumer c = createConsumer(FormatType.JSON);
     checkForDups(c.getMetadata());
   }
 
   @Test
+  public void testEdmxFormatParserTypeResolutionFullMetadata() throws Exception {
+    ODataConsumer c = createConsumer(FormatType.JSONLITEFULLMETADATA);
+    checkForDups(c.getMetadata());
+  }
+
+  @Test
+  public void testEdmxFormatParserTypeResolutionNoMetadata() throws Exception {
+    ODataConsumer c = createConsumer(FormatType.JSONLITENOMETADATA);
+    checkForDups(c.getMetadata());
+  }
+
+  @Test
   public void testEdmxBuilderContext() {
-    dumpResource("$metadata", FormatType.JSON);
+    dumpResource("$metadata", FormatType.JSONVERBOSE);
     // add some functions to the edm
     EdmDataServices.Builder ds = EdmDataServices.newBuilder(producer.getMetadata());
 
@@ -269,62 +293,4 @@ public class CustomTest extends CustomBaseTest {
     }
   }
 
-  @Test
-  public void testMLE() throws InterruptedException {
-    String content = rtFacade.getWebResource(endpointUri + "MLEs('foobar')/$value" + "?$format=json").getEntity();
-    assertEquals("here we have some content for the mle with id: ('foobar')", content);
-  }
-
-  @Test
-  public void testCreateMLE() throws InterruptedException {
-    /**
-     * There appears to be a strange race condition or something in the test environment:
-     * if the first request to the server has a payload, the server can
-     * timeout waiting for data from the client.  Not sure why or if it is a client
-     * or server issue. Workaround:  issue a GET first to prime things.
-     */
-    String contentBefore = rtFacade.getWebResource(endpointUri + "MLEs('ANewMLE')/$value" + "?$format=json").getEntity();
-
-    Map<String, Object> headers = new HashMap<String, Object>();
-    headers.put("Slug", "ANewMLE"); // the Id
-
-    String content = "This MLE was created by the test testCreateMLE()";
-    int status = rtFacade.postWebResource(endpointUri + "MLEs", new ByteArrayInputStream(content.getBytes()), MediaType.APPLICATION_OCTET_STREAM_TYPE, headers).getStatusCode();
-    assertEquals(Status.CREATED.getStatusCode(), status);
-
-    String content2 = rtFacade.getWebResource(endpointUri + "MLEs('ANewMLE')/$value" + "?$format=json").getEntity();
-    assertEquals(content, content2);
-  }
-
-  @Test
-  public void testUpdateMLE() {
-    /**
-     * There appears to be a strange race condition or something in the test environment:
-     * if the first request to the server has a payload, the server can
-     * timeout waiting for data from the client.  Not sure why or if it is a client
-     * or server issue. Workaround:  issue a GET first to prime things.
-     */
-    String contentBefore = rtFacade.getWebResource(endpointUri + "MLEs('foobar')/$value" + "?$format=json").getEntity();
-
-    String content = "This MLE was updated by the test testUpdateMLE()";
-    int status = rtFacade.putWebResource(endpointUri + "MLEs('foobar')", new ByteArrayInputStream(content.getBytes()), MediaType.TEXT_PLAIN_TYPE, null).getStatusCode();
-    assertEquals(Status.OK.getStatusCode(), status);
-
-    String content2 = rtFacade.getWebResource(endpointUri + "MLEs('foobar')/$value" + "?$format=json").getEntity();
-    assertEquals(content, content2);
-  }
-
-  @Test
-  public void testDeleteMLE() throws Exception {
-    ODataConsumer c = this.rtFacade.createODataConsumer(endpointUri, null);
-    OEntityKey key = OEntityKey.create("Id", "blatfoo");
-    c.deleteEntity("MLEs", key).execute();
-
-    try {
-      c.getEntity("MLEs", key).execute();
-      fail("Not found exception expected but not thrown");
-    } catch (ODataProducerException ex) {
-      assertThat(ex.getHttpStatus().getStatusCode(), is(Status.NOT_FOUND.getStatusCode()));
-    }
-  }
 }

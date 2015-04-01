@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Stack;
 
+import org.odata4j.core.ODataConstants;
 import org.odata4j.core.ODataConstants.Charsets;
 import org.odata4j.core.Throwables;
 import org.odata4j.stax2.QName2;
@@ -131,6 +132,30 @@ public class ManualXMLWriter2 implements XMLWriter2 {
   private void write(String value) {
     try {
       writer.write(value);
+    } catch (IOException e) {
+      // don't throw an exception; instead write a message as part of data and continue.
+      this.writeErrorMessageAsCData(e.getMessage());
+    }
+  }
+
+  /**
+   * In case we encounter any invalid characters in the XML, then print error message as CDATA so that it is highlighted at client side.<br><br>
+   * 
+   * If we still have issue, we will throw the exception.
+   * 
+   * @param content
+   */
+  @Override
+  public void writeErrorMessageAsCData(String message) {
+    StringBuilder errorMessageBuilder = new StringBuilder();
+    StringBuilder errorMessage = new StringBuilder(ODataConstants.ERROR_TEXT);
+    if (message != null) {
+      errorMessage.append(message);
+    }
+    errorMessageBuilder.append(ODataConstants.CDATA_TAG_START).append(errorMessageBuilder.toString()).append(ODataConstants.CDATA_TAG_END);
+
+    try {
+      writer.write(errorMessageBuilder.toString());
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

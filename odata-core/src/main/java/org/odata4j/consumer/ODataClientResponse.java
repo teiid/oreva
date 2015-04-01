@@ -1,5 +1,8 @@
 package org.odata4j.consumer;
 
+import java.io.InputStream;
+
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
 /**
@@ -10,6 +13,9 @@ import javax.ws.rs.core.MultivaluedMap;
 public interface ODataClientResponse {
 
   MultivaluedMap<String, String> getHeaders();
+
+  InputStream getEntityInputStream();
+  MediaType getMediaType();
 
   void close();
 }

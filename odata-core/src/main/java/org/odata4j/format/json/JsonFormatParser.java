@@ -1,30 +1,39 @@
 package org.odata4j.format.json;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.core4j.Enumerable;
 import org.core4j.Func1;
+import org.odata4j.core.OBindableEntities;
+import org.odata4j.core.OBindableEntity;
 import org.odata4j.core.OCollection;
 import org.odata4j.core.OComplexObject;
+import org.odata4j.core.ODataConstants;
 import org.odata4j.core.ODataVersion;
 import org.odata4j.core.OEntities;
 import org.odata4j.core.OEntity;
 import org.odata4j.core.OEntityKey;
 import org.odata4j.core.OLink;
 import org.odata4j.core.OLinks;
+import org.odata4j.core.ONamedStreamLink;
 import org.odata4j.core.OObject;
 import org.odata4j.core.OProperties;
 import org.odata4j.core.OProperty;
+import org.odata4j.core.StreamEntity;
 import org.odata4j.edm.EdmCollectionType;
 import org.odata4j.edm.EdmComplexType;
 import org.odata4j.edm.EdmDataServices;
 import org.odata4j.edm.EdmEntitySet;
 import org.odata4j.edm.EdmEntityType;
+import org.odata4j.edm.EdmFunctionImport;
+import org.odata4j.edm.EdmFunctionImport.FunctionKind;
+import org.odata4j.edm.EdmProperty.CollectionKind;
 import org.odata4j.edm.EdmMultiplicity;
 import org.odata4j.edm.EdmNavigationProperty;
 import org.odata4j.edm.EdmProperty;
-import org.odata4j.edm.EdmProperty.CollectionKind;
 import org.odata4j.edm.EdmSimpleType;
 import org.odata4j.edm.EdmType;
 import org.odata4j.format.Entry;
@@ -41,6 +50,10 @@ public class JsonFormatParser {
     String uri;
     String type;
     String etag;
+    String mediaSrc = null;
+    String mediaContentType = ODataConstants.APPLICATION_OCTET_STREAM; // default to "application/octet-stream"
+    Map<String, EdmFunctionImport> actions = new HashMap<String, EdmFunctionImport>();
+    Map<String, EdmFunctionImport> functions = new HashMap<String, EdmFunctionImport>();
   }
 
   static class JsonObjectPropertyValue {
@@ -54,14 +67,24 @@ public class JsonFormatParser {
 
   protected static final String METADATA_PROPERTY = "__metadata";
   protected static final String DEFERRED_PROPERTY = "__deferred";
+  protected static final String MEDIARESOURCE_PROPERTY = "__mediaresource";
   protected static final String NEXT_PROPERTY = "__next";
   protected static final String COUNT_PROPERTY = "__count";
 
   protected static final String URI_PROPERTY = "uri";
   protected static final String TYPE_PROPERTY = "type";
   protected static final String ETAG_PROPERTY = "etag";
+  protected static final String ACTIONS_PROPERTY = "actions";
+  protected static final String FUNCTIONS_PROPERTY = "functions";
   protected static final String RESULTS_PROPERTY = "results";
   protected static final String DATA_PROPERTY = "d";
+  protected static final String MEDIA_SOURCE = "media_src";
+  protected static final String EDIT_MEDIA_SOURCE = "edit_media";
+  protected static final String MEDIA_CONTENT_TYPE = "content_type";
+  
+  public static final String JSON_NAMED_STREAM_EDIT_MEDIA = "http://schemas.microsoft.com/ado/2007/08/dataservices/edit-media/";
+  public static final String JSON_NAMED_STREAM_SRC_MEDIA = "http://schemas.microsoft.com/ado/2007/08/dataservices/mediaresource/";
+
 
   protected ODataVersion version;
   protected EdmDataServices metadata;
@@ -69,6 +92,7 @@ public class JsonFormatParser {
   protected OEntityKey entityKey;
   protected boolean isResponse;
   protected EdmType parseType;
+  protected EdmFunctionImport parseFunction;
 
   protected JsonFormatParser(Settings settings) {
     this.version = settings == null ? null : settings.version;
@@ -77,6 +101,7 @@ public class JsonFormatParser {
     this.entityKey = settings == null ? null : settings.entityKey;
     this.isResponse = settings == null ? false : settings.isResponse;
     this.parseType = settings == null ? null : settings.parseType;
+    this.parseFunction = settings == null ? null : settings.parseFunction;
   }
 
   protected JsonFeed parseFeed(EdmEntitySet ees, JsonStreamReader jsr) {
@@ -117,15 +142,35 @@ public class JsonFormatParser {
       resolveEntityType(entry);
     entry.properties = new ArrayList<OProperty<?>>();
     entry.links = new ArrayList<OLink>();
-    while (jsr.hasNext()) {
+    List<Object>mediaList = new ArrayList<Object>();
+    
+   while (jsr.hasNext()) {
       JsonEvent event = jsr.nextEvent();
       if (event.isStartProperty()) {
         addProperty(entry, ees, event.asStartProperty().getName(), jsr);
+        // build  extension for stream entity
+        if (entry.jemd != null && entry.jemd.mediaSrc != null) {
+        	StreamEntity streamEntity = new StreamEntity();
+        	streamEntity.setAtomEntitySource(entry.jemd.mediaSrc);
+        	streamEntity.setAtomEntityType(entry.jemd.mediaContentType);
+        	mediaList.add(streamEntity);
+        }
       } else if (event.isEndObject()) {
         break;
       }
     }
-    entry.oentity = toOEntity(ees, entry.getEntityType(), entry.getEntityKey(), entry.getETag(), entry.properties, entry.links);
+    OBindableEntity bindableExtension = null;
+    if (entry.jemd != null && (entry.jemd.actions.size() > 0 || entry.jemd.functions.size() > 0)){
+      bindableExtension = OBindableEntities.createBindableExtension(entry.jemd.actions, entry.jemd.functions);
+    }
+    
+   
+    if( mediaList.isEmpty()) {
+    	entry.oentity = toOEntity(ees, entry.getEntityType(), entry.getEntityKey(), entry.getETag(), entry.properties, entry.links, bindableExtension);
+    } else {
+       	entry.oentity = toOEntity(ees, entry.getEntityType(), entry.getEntityKey(), entry.getETag(), entry.properties, entry.links, bindableExtension, mediaList.get(0));
+        
+    }
     return entry;
   }
 
@@ -133,15 +178,15 @@ public class JsonFormatParser {
     return parseEntry(null, ees, jsr);
   }
 
-  private OEntity toOEntity(EdmEntitySet entitySet, EdmEntityType entityType, OEntityKey key, String entityTag, List<OProperty<?>> properties, List<OLink> links) {
+  private OEntity toOEntity(EdmEntitySet entitySet, EdmEntityType entityType, OEntityKey key, String entityTag, List<OProperty<?>> properties, List<OLink> links, Object... extensions) {
 
     // key is what we pulled out of the _metadata, use it first.
     if (key != null) {
-      return OEntities.create(entitySet, entityType, key, entityTag, properties, links);
+      return OEntities.create(entitySet, entityType, key, entityTag, properties, links, extensions);
     }
 
     if (entityKey != null) {
-      return OEntities.create(entitySet, entityType, entityKey, entityTag, properties, links);
+      return OEntities.create(entitySet, entityType, entityKey, entityTag, properties, links, extensions);
     }
 
     return OEntities.createRequest(entitySet, properties, links);
@@ -167,6 +212,20 @@ public class JsonFormatParser {
           && ETAG_PROPERTY.equals(event.asStartProperty().getName())) {
         ensureEndProperty(event = jsr.nextEvent());
         jemd.etag = event.asEndProperty().getValue();
+      } else if (event.isStartProperty()
+              && MEDIA_SOURCE.equals(event.asStartProperty().getName())) {
+          ensureEndProperty(event = jsr.nextEvent());
+          jemd.mediaSrc = event.asEndProperty().getValue();
+      } else if (event.isStartProperty()
+              && MEDIA_CONTENT_TYPE.equals(event.asStartProperty().getName())) {
+          ensureEndProperty(event = jsr.nextEvent());
+          jemd.mediaContentType = event.asEndProperty().getValue();
+      } else if (event.isStartProperty()
+          && ACTIONS_PROPERTY.equals(event.asStartProperty().getName())) {       
+        parseFunctions(jsr, jemd.actions, FunctionKind.Action);
+      } else if (event.isStartProperty()
+          && FUNCTIONS_PROPERTY.equals(event.asStartProperty().getName())) {
+        parseFunctions(jsr, jemd.functions, FunctionKind.Function);
       } else if (event.isStartProperty() || event.isStartObject() || event.isStartArray()) {
         // ignore unsupported metadata, i.e. everything besides uri, type and etag
         jsr.skipNestedEvents();
@@ -180,6 +239,42 @@ public class JsonFormatParser {
     return jemd;
   }
 
+  protected void parseFunctions(JsonStreamReader jsr, Map<String, EdmFunctionImport> functions, FunctionKind kind){
+    JsonEvent event = null;
+    ensureStartObject(event = jsr.nextEvent());
+    
+    while ((event = jsr.nextEvent()).isStartProperty()){
+      String relation = event.asStartProperty().getName();
+      ensureStartArray(event = jsr.nextEvent());
+      ensureStartObject(event = jsr.nextEvent());
+      
+      String title = null;
+      String target = null;
+      
+      while ((event = jsr.nextEvent()).isStartProperty()){
+        if (event.isStartProperty()
+            && "title".equals(event.asStartProperty().getName())){
+          ensureEndProperty(event = jsr.nextEvent());
+          title = event.asEndProperty().getValue();
+        }  else if (event.isStartProperty()
+            && "target".equals(event.asStartProperty().getName())){
+          ensureEndProperty(event = jsr.nextEvent());
+          target = event.asEndProperty().getValue();
+        }  
+
+      }
+      EdmEntitySet ees = metadata.getEdmEntitySet(entitySetName);
+      EdmFunctionImport function = metadata.findEdmFunctionImport(title != null ? title : target, ees.getType(), kind);
+      functions.put(relation, function);
+
+      ensureEndArray(event = jsr.nextEvent());
+      ensureEndProperty(event = jsr.nextEvent());
+     
+    }
+    
+    ensureEndObject(event);  
+  }
+  
   /**
    * adds the property. This property can be a navigation property too. In this
    * case a link will be added. If it's the meta data the information will be
@@ -217,7 +312,12 @@ public class JsonFormatParser {
       if (!ep.getType().isSimple()) {
         // the only context that lands us here is a null value for a complex property
         if (event.asEndProperty().getValue() == null) {
-          entry.properties.add(OProperties.complex(name, (EdmComplexType) ep.getType(), null));
+          EdmType propType = this.getPropertyType(ep);
+          if (propType instanceof EdmCollectionType) {
+            entry.properties.add(OProperties.collection(name, (EdmCollectionType) propType, null));
+          } else {
+            entry.properties.add(OProperties.complex(name, (EdmComplexType) propType, null));
+          }
         } else {
           throw new UnsupportedOperationException("complex property unknown parse state");
         }
@@ -277,14 +377,52 @@ public class JsonFormatParser {
 
   protected JsonObjectPropertyValue getValue(JsonEvent event, EdmEntitySet ees, String name, JsonStreamReader jsr, JsonEntry entry) {
     JsonObjectPropertyValue rt = new JsonObjectPropertyValue();
-
+    
     ensureStartObject(event);
 
     event = jsr.nextEvent();
     ensureStartProperty(event);
 
+    // named resource, ignore it
+    if (MEDIARESOURCE_PROPERTY.equals(event.asStartProperty().getName())){
+      // this is a stream add it to link
+      ensureStartObject(jsr.nextEvent());
+      String editLinkHref = null; 
+      String srcLinkHref = null;
+      String content_type = null;
+      
+      
+      JsonEvent ev = jsr.nextEvent();
+      // loop until we reach the end object event.
+      while (!ev.isEndObject()) {
+        String evName = ev.asStartProperty().getName();
+        String evValue = jsr.nextEvent().asEndProperty().getValue();
+        
+        
+        if (evName.equals(EDIT_MEDIA_SOURCE)) {
+          editLinkHref = evValue;
+        }
+        else if (evName.equals(MEDIA_SOURCE)) {
+          srcLinkHref = evValue;
+        }
+        else if (evName.equals("content-type")) {
+          content_type = evValue;
+        }
+        
+        // move to next event;
+        ev = jsr.nextEvent();
+      }
+      
+      if (editLinkHref != null) {
+        entry.links.add(OLinks.namedStreamLink(JSON_NAMED_STREAM_EDIT_MEDIA+name, name, editLinkHref, content_type));
+      }
+      if (srcLinkHref != null) {
+        entry.links.add(OLinks.namedStreamLink(JSON_NAMED_STREAM_SRC_MEDIA+name, name, srcLinkHref, content_type));
+      }
+      
+    }
     // "__deferred":
-    if (DEFERRED_PROPERTY.equals(event.asStartProperty().getName())) {
+    else if (DEFERRED_PROPERTY.equals(event.asStartProperty().getName())) {
       // deferred feed or entity
 
       // {
@@ -333,11 +471,19 @@ public class JsonFormatParser {
             }).toList();
       } else {
         EdmProperty eprop = entry.getEntityType().findProperty(name);
-        if (eprop != null && eprop.getCollectionKind() != CollectionKind.NONE) {
-          rt.collectionType = new EdmCollectionType(eprop.getCollectionKind(), eprop.getType());
+        EdmType propType = this.getPropertyType(eprop);
+          
+        if (propType instanceof EdmCollectionType) {
+          rt.collectionType = (EdmCollectionType) propType;
           JsonCollectionFormatParser cfp = new JsonCollectionFormatParser(rt.collectionType, this.metadata);
           rt.collection = cfp.parseCollection(jsr);
-        } else {
+        }  
+        else if (propType instanceof EdmComplexType) {
+          JsonComplexObjectFormatParser cmp = new JsonComplexObjectFormatParser((EdmComplexType)propType);
+          rt.complexObject = cmp.parseSingleObject(jsr);
+          
+        }
+        else {
           throw new RuntimeException("unhandled property: " + name);
         }
       }
@@ -346,7 +492,7 @@ public class JsonFormatParser {
       ensureEndObject(jsr.nextEvent());
 
     } else if (METADATA_PROPERTY.equals(event.asStartProperty().getName())) {
-      // inlined entity or link starting with meta data
+      // inlined entity or link starting with meta data, not if the value is a complex type
       EdmNavigationProperty navProp = entry.getEntityType().findNavigationProperty(name);
       JsonEntryMetaData jemd = parseMetadata(jsr);
       JsonEntry refentry = parseEntry(jemd, metadata.getEdmEntitySet(navProp.getToRole().getType()), jsr);
@@ -387,8 +533,7 @@ public class JsonFormatParser {
           // why the lookup?  well, during metadata parsing, currently, EdmProperties with type=EdmComplexType are created
           // by using EdmType.get(typname).  This results in a useless instance of EdmNonSimpleType.  To fix,
           // someone is going to have to make EdmxFormatParser resolve property types at parse time.
-          EdmComplexType ct = (prop.getType() instanceof EdmComplexType) ? ((EdmComplexType) prop.getType())
-              : metadata.findEdmComplexType(prop.getType().getFullyQualifiedTypeName());
+          EdmComplexType ct = metadata.findEdmComplexType(prop.getType().getFullyQualifiedTypeName());
 
           if (ct != null) {
             JsonComplexObjectFormatParser cofp = new JsonComplexObjectFormatParser(ct);
@@ -456,4 +601,25 @@ public class JsonFormatParser {
     }
   }
 
+  /**
+   * this method will handle 2 different ways to specify collection type
+   * 1. defined as <Property Name="Complexes" Nullable="true" Type="Collection<JsonTest.Complex1>" />
+   * 2. defined as <Property CollectionKind="Collection" Name="Complexes" Nullable="true" Type="JsonTest.Complex1" />
+   * @param eprop
+   * @return
+   */
+  protected EdmType getPropertyType(EdmProperty eprop) {
+    if (eprop == null) {
+      return null;
+    }
+    EdmType propType = eprop.getType();
+    // for odata4j generated collection property it is like 
+    // <Property CollectionKind="Collection" Name="Complexes" Nullable="true" Type="JsonTest.Complex1" />
+    if (eprop.getCollectionKind() != null && eprop.getCollectionKind() != CollectionKind.NONE) {
+      propType = new EdmCollectionType(eprop.getCollectionKind(), propType);
+    }
+    
+    return propType;
+
+  }
 }

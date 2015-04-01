@@ -11,9 +11,19 @@ import org.odata4j.core.OEntityIds;
 public class SingleLinks implements Iterable<SingleLink> {
 
   private final List<SingleLink> links;
+  private final String targetNavProp;
+  private final OEntityId sourceEntity;
 
   private SingleLinks(Collection<SingleLink> links) {
     this.links = new ArrayList<SingleLink>(links);
+    this.targetNavProp = null;
+    this.sourceEntity = null;
+  }
+
+  private SingleLinks(Collection<SingleLink> links, OEntityId sourceEntity, String targetNavProp) {
+    this.links = new ArrayList<SingleLink>(links);
+    this.targetNavProp = targetNavProp;
+    this.sourceEntity = sourceEntity;
   }
 
   @Override
@@ -40,12 +50,45 @@ public class SingleLinks implements Iterable<SingleLink> {
     return create(uri);
   }
 
+  public static SingleLink create(String serviceRootUri, OEntityId entity, OEntityId sourceEntity, String targetNavProp) {
+    String uri = serviceRootUri;
+    if (!uri.endsWith("/"))
+      uri += "/";
+    uri += OEntityIds.toKeyString(entity);
+    return new SingleLinkImpl(uri, sourceEntity, targetNavProp);
+  }
+
+  public static SingleLinks create(String serviceRootUri, Collection<OEntityId> entities, OEntityId sourceEntity, String targetNavProp) {
+    List<SingleLink> rt = new ArrayList<SingleLink>();
+    for (OEntityId e : entities)
+      rt.add(create(serviceRootUri, e));
+    return new SingleLinks(rt, sourceEntity, targetNavProp);
+  }
+
+  public String getTargetNavProp() {
+    return targetNavProp;
+  }
+
+  public OEntityId getSourceEntity() {
+    return sourceEntity;
+  }
+
   private static class SingleLinkImpl implements SingleLink {
 
     private final String uri;
+    private final String targetNavProp;
+    private final OEntityId sourceEntity;
 
     public SingleLinkImpl(String uri) {
       this.uri = uri;
+      this.sourceEntity = null;
+      this.targetNavProp = null;
+    }
+
+    public SingleLinkImpl(String uri, OEntityId sourceEntity, String targetNavProp) {
+      this.uri = uri;
+      this.sourceEntity = sourceEntity;
+      this.targetNavProp = targetNavProp;
     }
 
     @Override
@@ -56,6 +99,16 @@ public class SingleLinks implements Iterable<SingleLink> {
     @Override
     public String toString() {
       return String.format("SingleLink[%s]", uri);
+    }
+
+    @Override
+    public String getTargetNavProp() {
+      return targetNavProp;
+    }
+
+    @Override
+    public OEntityId getSourceEntity() {
+      return sourceEntity;
     }
   }
 

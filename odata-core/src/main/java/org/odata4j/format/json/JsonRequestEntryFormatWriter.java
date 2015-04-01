@@ -2,9 +2,9 @@ package org.odata4j.format.json;
 
 import java.io.Writer;
 
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.odata4j.core.ODataConstants;
 import org.odata4j.format.Entry;
 
 public class JsonRequestEntryFormatWriter extends JsonFormatWriter<Entry> {
@@ -15,7 +15,7 @@ public class JsonRequestEntryFormatWriter extends JsonFormatWriter<Entry> {
 
   @Override
   public String getContentType() {
-    return MediaType.APPLICATION_JSON;
+    return ODataConstants.APPLICATION_JAVASCRIPT_VERBOSE_CHARSET_UTF8;
   }
 
   @Override
