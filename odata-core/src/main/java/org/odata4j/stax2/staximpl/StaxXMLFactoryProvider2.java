@@ -61,7 +61,16 @@ public class StaxXMLFactoryProvider2 extends XMLFactoryProvider2 {
 
   @Override
   public XMLInputFactory2 newXMLInputFactory2() {
-    return new StaxXMLInputFactory2(XMLInputFactory.newInstance());
+    XMLInputFactory factory = XMLInputFactory.newInstance();
+    factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
+    factory.setXMLResolver(new XMLResolver() {
+      @Override
+      public Object resolveEntity(String arg0, String arg1, String arg2,
+        String arg3) throws XMLStreamException {
+        throw new XMLStreamException("Reading external entities is disabled");
+      }
+    });
+    return new StaxXMLInputFactory2(factory);
   }
 
   private static class StaxXMLInputFactory2 implements XMLInputFactory2 {
