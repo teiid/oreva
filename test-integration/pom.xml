@@ -8,7 +8,7 @@
   <parent>
     <groupId>org.jboss.oreva</groupId>
     <artifactId>parent</artifactId>
-    <version>0.8.0</version>
+    <version>0.8.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
 
