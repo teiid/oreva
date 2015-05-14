@@ -11,6 +11,7 @@ import org.odata4j.core.ODataVersion;
 import org.odata4j.core.OPredicates;
 import org.odata4j.core.PrefixedNamespace;
 import org.odata4j.edm.EdmItem.BuilderContext;
+import org.odata4j.edm.EdmProperty.CollectionKind;
 import org.odata4j.exceptions.NotFoundException;
 import org.odata4j.internal.AndroidCompat;
 
@@ -394,8 +395,31 @@ public class EdmDataServices {
       //       guessing that in that case, the TempEdmFunctionImport will already
       //       have a EdmRowType instance it built during parsing.
       // first, try to resolve the type name as a simple or complex type
-      EdmType type = EdmType.getSimple(fqTypeName);
       EdmType.Builder<?, ?> builder = null;
+      if (fqTypeName.startsWith(CollectionKind.Bag.name()+"(") && fqTypeName.endsWith(")")){    	  
+        fqTypeName = fqTypeName.substring(4, fqTypeName.length()-1);
+        builder = EdmCollectionType.newBuilder()
+          .setKind(CollectionKind.Bag)
+          .setCollectionType(getTypeBuilder(fqTypeName));
+      } else if (fqTypeName.startsWith(CollectionKind.List.name()+"(") && fqTypeName.endsWith(")")){
+        fqTypeName = fqTypeName.substring(5, fqTypeName.length()-1);
+        builder = EdmCollectionType.newBuilder()
+          .setKind(CollectionKind.List)
+          .setCollectionType(getTypeBuilder(fqTypeName));
+      } else if (fqTypeName.startsWith(CollectionKind.Collection.name()+"(") && fqTypeName.endsWith(")")){
+        fqTypeName = fqTypeName.substring(11, fqTypeName.length()-1);
+        builder = EdmCollectionType.newBuilder()
+          .setKind(CollectionKind.Collection)
+          .setCollectionType(getTypeBuilder(fqTypeName));
+      } else {      
+        builder = getTypeBuilder(fqTypeName);      
+      }
+      return builder;
+    }
+
+	private EdmType.Builder<?, ?> getTypeBuilder(String fqTypeName) {
+	  EdmType.Builder<?, ?> builder;
+	  EdmType type = EdmType.getSimple(fqTypeName);      
       if (type != null) {
         builder = EdmSimpleType.newBuilder(type);
       } else {
@@ -406,7 +430,5 @@ public class EdmDataServices {
       }
       return builder;
     }
-
   }
-
 }
