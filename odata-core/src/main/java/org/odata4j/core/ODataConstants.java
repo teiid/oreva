@@ -16,6 +16,7 @@ public class ODataConstants {
   public static final String APPLICATION_ATOMSVC_XML = "application/atomsvc+xml";
   public static final String APPLICATION_ATOMSVC_XML_CHARSET_UTF8 = APPLICATION_ATOMSVC_XML + ";charset=" + Charsets.Lower.UTF_8;
 
+  public static final String APPLICATION_XML = "application/xml";
   public static final String APPLICATION_XML_CHARSET_UTF8 = "application/xml;charset=" + Charsets.Lower.UTF_8;
   public static final String TEXT_JAVASCRIPT_CHARSET_UTF8 = "text/javascript;charset=" + Charsets.Lower.UTF_8;
   public static final String APPLICATION_JAVASCRIPT = "application/json";
