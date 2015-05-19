@@ -69,7 +69,7 @@ public abstract class JsonFormatWriter<T> implements FormatWriter<T> {
   @Override
   public String getContentType() {
     return jsonpCallback == null
-        ? ODataConstants.APPLICATION_JAVASCRIPT_CHARSET_UTF8
+        ? ODataConstants.APPLICATION_JSON_CHARSET_UTF8
         : ODataConstants.TEXT_JAVASCRIPT_CHARSET_UTF8;
   }
 

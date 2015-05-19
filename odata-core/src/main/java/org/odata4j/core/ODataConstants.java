@@ -19,8 +19,8 @@ public class ODataConstants {
   public static final String APPLICATION_XML = "application/xml";
   public static final String APPLICATION_XML_CHARSET_UTF8 = "application/xml;charset=" + Charsets.Lower.UTF_8;
   public static final String TEXT_JAVASCRIPT_CHARSET_UTF8 = "text/javascript;charset=" + Charsets.Lower.UTF_8;
-  public static final String APPLICATION_JAVASCRIPT = "application/json";
-  public static final String APPLICATION_JAVASCRIPT_CHARSET_UTF8 = APPLICATION_JAVASCRIPT + ";charset=" + Charsets.Lower.UTF_8;
+  public static final String APPLICATION_JSON = "application/json";
+  public static final String APPLICATION_JSON_CHARSET_UTF8 = APPLICATION_JSON + ";charset=" + Charsets.Lower.UTF_8;
 
   public static final ODataVersion DATA_SERVICE_VERSION = ODataVersion.V1;
   public static final String DATA_SERVICE_VERSION_HEADER = DATA_SERVICE_VERSION.asString;

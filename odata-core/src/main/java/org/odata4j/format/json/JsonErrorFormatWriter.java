@@ -25,7 +25,7 @@ public class JsonErrorFormatWriter implements FormatWriter<ErrorResponse> {
   }
 
   public String getContentType() {
-    return ODataConstants.APPLICATION_JAVASCRIPT_CHARSET_UTF8;
+    return ODataConstants.APPLICATION_JSON_CHARSET_UTF8;
   }
 
   private void writeError(JsonWriter jw, OError error) {

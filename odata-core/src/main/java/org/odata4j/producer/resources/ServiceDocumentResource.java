@@ -22,7 +22,11 @@ import org.odata4j.producer.ODataProducer;
 public class ServiceDocumentResource {
 
   @GET
-  @Produces({ ODataConstants.APPLICATION_XML_CHARSET_UTF8, ODataConstants.TEXT_JAVASCRIPT_CHARSET_UTF8, ODataConstants.APPLICATION_JAVASCRIPT_CHARSET_UTF8, ODataConstants.APPLICATION_XML })
+  @Produces({ ODataConstants.APPLICATION_XML_CHARSET_UTF8, 
+	  ODataConstants.TEXT_JAVASCRIPT_CHARSET_UTF8, 
+	  ODataConstants.APPLICATION_JSON_CHARSET_UTF8, 
+	  ODataConstants.APPLICATION_XML,
+	  ODataConstants.APPLICATION_JSON})
   public Response getServiceDocument(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,

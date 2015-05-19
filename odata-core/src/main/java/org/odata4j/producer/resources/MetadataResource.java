@@ -13,7 +13,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Providers;
 
 import org.odata4j.core.ODataConstants;
@@ -70,7 +69,9 @@ public class MetadataResource {
   @Path("{entitySetName}")
   @Produces({ ODataConstants.APPLICATION_ATOM_XML_CHARSET_UTF8,
       ODataConstants.TEXT_JAVASCRIPT_CHARSET_UTF8,
-      ODataConstants.APPLICATION_JAVASCRIPT_CHARSET_UTF8 })
+      ODataConstants.APPLICATION_JSON_CHARSET_UTF8,
+      ODataConstants.APPLICATION_JSON,
+      ODataConstants.APPLICATION_XML })
   public Response getMetadataEntities(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
@@ -104,7 +105,9 @@ public class MetadataResource {
   @Path("{entitySetName}{id: (\\(.+?\\))}")
   @Produces({ ODataConstants.APPLICATION_ATOM_XML_CHARSET_UTF8,
       ODataConstants.TEXT_JAVASCRIPT_CHARSET_UTF8,
-      ODataConstants.APPLICATION_JAVASCRIPT_CHARSET_UTF8 })
+      ODataConstants.APPLICATION_JSON_CHARSET_UTF8,
+      ODataConstants.APPLICATION_JSON,
+      ODataConstants.APPLICATION_XML})
   public Response getMetadataEntity(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,

@@ -52,7 +52,7 @@ public class EntitiesRequestResource extends BaseResource {
   private static final Logger log = Logger.getLogger(EntitiesRequestResource.class.getName());
 
   @POST
-  @Produces({ ODataConstants.APPLICATION_ATOM_XML_CHARSET_UTF8, ODataConstants.TEXT_JAVASCRIPT_CHARSET_UTF8, ODataConstants.APPLICATION_JAVASCRIPT_CHARSET_UTF8 })
+  @Produces({ ODataConstants.APPLICATION_XML, ODataConstants.APPLICATION_ATOM_XML_CHARSET_UTF8, ODataConstants.TEXT_JAVASCRIPT_CHARSET_UTF8, ODataConstants.APPLICATION_JSON_CHARSET_UTF8, ODataConstants.APPLICATION_JSON })
   public Response createEntity(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
@@ -229,7 +229,9 @@ public class EntitiesRequestResource extends BaseResource {
   @GET
   @Produces({ ODataConstants.APPLICATION_ATOM_XML_CHARSET_UTF8,
       ODataConstants.TEXT_JAVASCRIPT_CHARSET_UTF8,
-      ODataConstants.APPLICATION_JAVASCRIPT_CHARSET_UTF8 })
+      ODataConstants.APPLICATION_JSON_CHARSET_UTF8,
+      ODataConstants.APPLICATION_XML,
+      ODataConstants.APPLICATION_JSON })
   public Response getEntities(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
@@ -272,7 +274,9 @@ public class EntitiesRequestResource extends BaseResource {
   @Produces({ ODataConstants.APPLICATION_ATOM_XML_CHARSET_UTF8,
       ODataConstants.TEXT_JAVASCRIPT_CHARSET_UTF8,
       ODataConstants.TEXT_PLAIN_CHARSET_UTF8,
-      ODataConstants.APPLICATION_JAVASCRIPT_CHARSET_UTF8 })
+      ODataConstants.APPLICATION_JSON_CHARSET_UTF8,
+      ODataConstants.APPLICATION_XML,
+      ODataConstants.APPLICATION_JSON })
   public Response getEntitiesCount(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
@@ -400,7 +404,7 @@ public class EntitiesRequestResource extends BaseResource {
   @POST
   @Path("{batch: [$]batch}")
   @Consumes(ODataBatchProvider.MULTIPART_MIXED)
-  @Produces(ODataConstants.APPLICATION_ATOM_XML_CHARSET_UTF8)
+  @Produces({ODataConstants.APPLICATION_ATOM_XML_CHARSET_UTF8, ODataConstants.APPLICATION_XML})
   public Response processBatch(
       @Context Providers providers,
       @Context HttpHeaders headers,
