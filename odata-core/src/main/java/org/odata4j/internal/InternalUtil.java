@@ -331,7 +331,7 @@ public class InternalUtil {
 
   public static String getEntityRelId(EdmEntitySet entitySet, OEntityKey entityKey) {
     String key = entityKey.toKeyString();
-    return entitySet.getName() + key;
+    return entitySet.getType().getFullyQualifiedTypeName() + key;
   }
 
   public static void sleep(long millis) {
