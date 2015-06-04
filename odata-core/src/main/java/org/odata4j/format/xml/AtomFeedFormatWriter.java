@@ -31,7 +31,7 @@ public class AtomFeedFormatWriter extends XmlFormatWriter implements FormatWrite
     String baseUri = uriInfo.getBaseUri().toString();
 
     EdmEntitySet ees = response.getEntitySet();
-    String entitySetName = ees.getName();
+    String entitySetName = ees.getType().getFullyQualifiedTypeName();
     DateTime utc = new DateTime().withZone(DateTimeZone.UTC);
     String updated = InternalUtil.toString(utc);
 
