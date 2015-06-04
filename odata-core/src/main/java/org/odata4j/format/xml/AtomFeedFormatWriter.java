@@ -44,7 +44,11 @@ public class AtomFeedFormatWriter extends XmlFormatWriter implements FormatWrite
     writer.writeAttribute("xml:base", baseUri);
 
     writeElement(writer, "title", entitySetName, "type", "text");
-    writeElement(writer, "id", baseUri + uriInfo.getPath());
+    String path = uriInfo.getPath(); 
+    if (baseUri.endsWith("/") && path.startsWith("/")) {
+      path = path.substring(1);
+    }
+    writeElement(writer, "id", baseUri + path);
 
     writeElement(writer, "updated", updated);
 
