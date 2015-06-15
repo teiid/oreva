@@ -1,5 +1,6 @@
 package org.odata4j.test.integration.issues;
 
+import static org.mockito.Mockito.spy;
 import junit.framework.Assert;
 
 import org.core4j.Enumerable;
@@ -7,13 +8,14 @@ import org.junit.Test;
 import org.odata4j.core.OEntity;
 import org.odata4j.core.OEntityKey;
 import org.odata4j.edm.EdmEntitySet;
-import org.odata4j.producer.EntitiesResponse;
+import org.odata4j.producer.BaseResponse;
 import org.odata4j.producer.ODataContext;
+import org.odata4j.producer.ODataProducer;
 import org.odata4j.producer.QueryInfo;
 import org.odata4j.producer.Responses;
-import org.odata4j.producer.inmemory.InMemoryProducer;
 import org.odata4j.producer.resources.DefaultODataProducerProvider;
 import org.odata4j.test.integration.AbstractJettyHttpClientTest;
+import org.odata4j.test.integration.producer.custom.CustomProducer;
 
 public class Issue16Test extends AbstractJettyHttpClientTest {
 
@@ -25,15 +27,22 @@ public class Issue16Test extends AbstractJettyHttpClientTest {
 
   @Override
   protected void registerODataProducer() throws Exception {
-    InMemoryProducer producer = new InMemoryProducer("Issue16") {
+    DefaultODataProducerProvider.setInstance(mockProducer());
+  }
+
+  CustomProducer producer;
+
+  protected ODataProducer mockProducer() {
+    CustomProducer cp = new CustomProducer() {
       @Override
-      public EntitiesResponse getNavProperty(ODataContext context, String entitySetName, OEntityKey entityKey, String navProp, QueryInfo queryInfo) {
+      public BaseResponse getNavProperty(ODataContext context, String entitySetName, OEntityKey entityKey, String navProp, QueryInfo queryInfo) {
         actualNavProp[0] = navProp;
         return Responses.entities(Enumerable.<OEntity> create().toList(), EdmEntitySet.newBuilder().setName("messageLog").build(), null, null);
       }
     };
+    producer = spy(cp); // mock(ODataProducer.class);
 
-    DefaultODataProducerProvider.setInstance(producer);
+    return producer;
   }
 
   @Test

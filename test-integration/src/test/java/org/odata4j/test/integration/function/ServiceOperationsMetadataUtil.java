@@ -11,7 +11,7 @@ import org.odata4j.format.xml.EdmxFormatParser;
 import org.odata4j.stax2.XMLInputFactory2;
 import org.odata4j.stax2.staximpl.StaxXMLFactoryProvider2;
 
-public class MetadataUtil {
+public class ServiceOperationsMetadataUtil {
 
   public static final String TEST_FUNCTION_RETURN_STRING_DELETE = "TestFunctionReturnStringDelete";
   public static final String TEST_FUNCTION_RETURN_STRING_MERGE = "TestFunctionReturnStringMerge";
@@ -33,7 +33,7 @@ public class MetadataUtil {
   private static final String REF_SCENARIO_EDMX = "/META-INF/FunctionImportScenario.edmx.xml";
 
   public static EdmDataServices readMetadataServiceFromFile() {
-    InputStream inputStream = FunctionImportProducerMock.class.getResourceAsStream(MetadataUtil.REF_SCENARIO_EDMX);
+    InputStream inputStream = ServiceOperationsProducerMock.class.getResourceAsStream(ServiceOperationsMetadataUtil.REF_SCENARIO_EDMX);
     Reader reader = new InputStreamReader(inputStream);
 
     XMLInputFactory2 inputFactory = StaxXMLFactoryProvider2.getInstance().newXMLInputFactory2();
@@ -45,7 +45,7 @@ public class MetadataUtil {
 
   public static String readMetadataFromFile() {
     try {
-      InputStream inputStream = MetadataUtil.class.getResourceAsStream(MetadataUtil.REF_SCENARIO_EDMX);
+      InputStream inputStream = ServiceOperationsMetadataUtil.class.getResourceAsStream(ServiceOperationsMetadataUtil.REF_SCENARIO_EDMX);
 
       BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
       String line = null;

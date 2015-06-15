@@ -15,7 +15,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.ContextResolver;
-import javax.ws.rs.ext.Providers;
 
 import org.core4j.Enumerable;
 import org.odata4j.core.ODataConstants;
@@ -51,7 +50,7 @@ public class LinksRequestResource extends BaseResource {
   @POST
   public Response createLink(@Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
-      @Context Providers providers,
+      @Context ContextResolver<ODataProducer> producerResolver,
       @Context SecurityContext securityContext,
       String payload) {
     log.info(String.format(
@@ -61,7 +60,7 @@ public class LinksRequestResource extends BaseResource {
         targetNavProp,
         targetEntityKey));
 
-    ODataProducer producer = getODataProducer(providers);
+    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
 
     OEntityId newTargetEntity = parseRequestUri(httpHeaders, uriInfo, payload);
     producer.createLink(ODataContextImpl.builder().aspect(httpHeaders).aspect(securityContext).build(), sourceEntity, targetNavProp, newTargetEntity);
@@ -71,7 +70,7 @@ public class LinksRequestResource extends BaseResource {
   @PUT
   public Response updateLink(@Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
-      @Context Providers providers,
+      @Context ContextResolver<ODataProducer> producerResolver,
       @Context SecurityContext securityContext,
       String payload) {
     log.info(String.format(
@@ -81,7 +80,7 @@ public class LinksRequestResource extends BaseResource {
         targetNavProp,
         targetEntityKey));
 
-    ODataProducer producer = getODataProducer(providers);
+    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
 
     OEntityId newTargetEntity = parseRequestUri(httpHeaders, uriInfo, payload);
     producer.updateLink(ODataContextImpl.builder().aspect(httpHeaders).aspect(securityContext).build(), sourceEntity, targetNavProp, targetEntityKey, newTargetEntity);
@@ -101,7 +100,7 @@ public class LinksRequestResource extends BaseResource {
   @DELETE
   public Response deleteLink(@Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
-      @Context Providers providers,
+      @Context ContextResolver<ODataProducer> producerResolver,
       @Context SecurityContext securityContext) {
     log.info(String.format(
         "deleteLink(%s,%s,%s,%s)",
@@ -110,7 +109,7 @@ public class LinksRequestResource extends BaseResource {
         targetNavProp,
         targetEntityKey));
 
-    ODataProducer producer = getODataProducer(providers);
+    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
 
     producer.deleteLink(ODataContextImpl.builder().aspect(httpHeaders).aspect(securityContext).build(), sourceEntity, targetNavProp, targetEntityKey);
     return noContent();
@@ -119,7 +118,7 @@ public class LinksRequestResource extends BaseResource {
   @GET
   public Response getLinks(@Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
-      @Context Providers providers,
+      @Context ContextResolver<ODataProducer> producerResolver,
       @Context SecurityContext securityContext,
       @QueryParam("$format") String format,
       @QueryParam("$callback") String callback) {
@@ -131,7 +130,7 @@ public class LinksRequestResource extends BaseResource {
         targetNavProp,
         targetEntityKey));
 
-    ODataProducer producer = getODataProducer(providers);
+    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
 
     EntityIdResponse response = producer.getLinks(ODataContextImpl.builder().aspect(httpHeaders).aspect(securityContext).build(), sourceEntity, targetNavProp);
 
@@ -139,7 +138,7 @@ public class LinksRequestResource extends BaseResource {
     String serviceRootUri = uriInfo.getBaseUri().toString();
     String contentType;
     if (response.getMultiplicity() == EdmMultiplicity.MANY) {
-      SingleLinks links = SingleLinks.create(serviceRootUri, response.getEntities());
+      SingleLinks links = SingleLinks.create(serviceRootUri, response.getEntities(), sourceEntity, targetNavProp);
       FormatWriter<SingleLinks> fw = FormatWriterFactory.getFormatWriter(SingleLinks.class, httpHeaders.getAcceptableMediaTypes(), format, callback);
       fw.write(uriInfo, sw, links);
       contentType = fw.getContentType();
@@ -148,7 +147,7 @@ public class LinksRequestResource extends BaseResource {
       if (entityId == null)
         throw new NotFoundException();
 
-      SingleLink link = SingleLinks.create(serviceRootUri, entityId);
+      SingleLink link = SingleLinks.create(serviceRootUri, entityId, sourceEntity, targetNavProp);
       FormatWriter<SingleLink> fw = FormatWriterFactory.getFormatWriter(SingleLink.class, httpHeaders.getAcceptableMediaTypes(), format, callback);
       fw.write(uriInfo, sw, link);
       contentType = fw.getContentType();

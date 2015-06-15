@@ -236,6 +236,27 @@ public class CustomEdm implements EdmGenerator {
 
     EdmEntitySet.Builder mleSet = EdmEntitySet.newBuilder().setName("MLEs").setEntityType(mleType);
     entitySets.add(mleSet);
+    // ---------------------------  Message Entity ------------------------------
+    props = new ArrayList<EdmProperty.Builder>();
+    navprops = new ArrayList<EdmNavigationProperty.Builder>();
+
+    ep = EdmProperty.newBuilder("Id").setType(EdmSimpleType.STRING);
+    props.add(ep);
+
+    ep = EdmProperty.newBuilder("messageLog").setType(EdmSimpleType.STRING);
+    props.add(ep);
+
+    EdmEntityType.Builder messageType = EdmEntityType.newBuilder()
+        .setNamespace(namespace)
+        .setName("Message")
+        .addKeys("Id")
+        .setHasStream(Boolean.TRUE)
+        .addProperties(props);
+
+    entityTypes.add(messageType);
+
+    EdmEntitySet.Builder messageTypes = EdmEntitySet.newBuilder().setName("Message").setEntityType(messageType);
+    entitySets.add(messageTypes);
   }
 
   private EdmAssociation.Builder defineAssociation(

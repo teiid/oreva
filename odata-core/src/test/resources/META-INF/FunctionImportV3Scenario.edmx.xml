@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx">
+	<edmx:DataServices m:DataServiceVersion="2.0"
+		xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata">
+		<Schema Namespace="RefScenario" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+		
+			<EntityType Name="Employee" m:HasStream="true">
+				<Key>
+					<PropertyRef Name="EmployeeId" />
+				</Key>
+				<Property Name="EmployeeId" Type="Edm.String" Nullable="false" />
+				<Property Name="EmployeeName" Type="Edm.String" m:FC_TargetPath="SyndicationTitle" />
+				<Property Name="ManagerId" Type="Edm.String" />
+				<Property Name="RoomId" Type="Edm.String" />
+				<Property Name="TeamId" Type="Edm.String" MaxLength="2" />
+				<Property Name="Location" Type="RefScenario.c_Location" />
+				<Property Name="Age" Type="Edm.Int16" />
+				<Property Name="EntryDate" Type="Edm.DateTime" Nullable="true" m:FC_TargetPath="SyndicationUpdated" />
+				<Property Name="ImageUrl" Type="Edm.String" />
+			</EntityType>
+			
+			<EntityType Name="Company">
+				<Key>
+					<PropertyRef Name="CompanyId" />
+				</Key>
+				<Property Name="CompanyId" Type="Edm.String" Nullable="false" />
+				<Property Name="CompanyName" Type="Edm.String" m:FC_TargetPath="SyndicationTitle" />
+			</EntityType>	
+					
+			<ComplexType Name="c_Location">
+				<Property Name="City" Type="RefScenario.c_City" />
+				<Property Name="Country" Type="Edm.String" />
+			</ComplexType>
+			<ComplexType Name="c_City">
+				<Property Name="PostalCode" Type="Edm.String" />
+				<Property Name="CityName" Type="Edm.String" />
+			</ComplexType>
+			<EntityContainer Name="Container1" m:IsDefaultEntityContainer="true">
+				<EntitySet Name="Employees" EntityType="RefScenario.Employee" />
+				<EntitySet Name="Companies" EntityType="RefScenario.Company" />
+
+				<FunctionImport Name="TestBoundFunction" 
+					IsBindable="true"
+					IsSideEffecting="false"
+					ReturnType="Edm.String"
+					m:IsAlwaysBindable="false">
+					<Parameter Name="employee" Type="RefScenario.Employee" Mode="In" />
+					<Parameter Name="p2" Type="Edm.String" Mode="In" />
+				</FunctionImport>
+				
+				<FunctionImport Name="TestOverloadedBoundFunction" 
+					IsBindable="true"
+					IsSideEffecting="false"
+					ReturnType="Edm.String"
+					m:IsAlwaysBindable="false">
+					<Parameter Name="employee" Type="RefScenario.Employee" Mode="In" />
+					<Parameter Name="p2" Type="Edm.String" Mode="In" />
+				</FunctionImport>
+				
+				<FunctionImport Name="TestOverloadedBoundFunction" 
+					IsBindable="true"
+					IsSideEffecting="false"
+					ReturnType="Edm.String"
+					m:IsAlwaysBindable="false">
+					<Parameter Name="company" Type="RefScenario.Company" Mode="In" />
+					<Parameter Name="p2" Type="Edm.String" Mode="In" />
+				</FunctionImport>
+
+				<FunctionImport Name="TestBoundAction" 
+					IsBindable="true"
+					IsSideEffecting="true"
+					ReturnType="Edm.String"				
+					m:IsAlwaysBindable="false">
+					<Parameter Name="employee" Type="RefScenario.Employee" Mode="In" />
+					<Parameter Name="p2" Type="Edm.String" Mode="In" />
+				</FunctionImport>
+				
+				<FunctionImport Name="TestOverloadedBoundAction" 
+					IsBindable="true"
+					IsSideEffecting="true"
+					ReturnType="Edm.String"
+					m:IsAlwaysBindable="false">
+					<Parameter Name="employee" Type="RefScenario.Employee" Mode="In" />
+					<Parameter Name="p2" Type="Edm.String" Mode="In" />
+				</FunctionImport>
+				
+				<FunctionImport Name="TestOverloadedBoundAction" 
+					IsBindable="true"
+					IsSideEffecting="true"
+					ReturnType="Edm.String"
+					m:IsAlwaysBindable="false">
+					<Parameter Name="company" Type="RefScenario.Company" Mode="In" />
+					<Parameter Name="p2" Type="Edm.String" Mode="In" />
+				</FunctionImport>
+
+				<FunctionImport Name="TestCollectionBoundFunction" 
+					IsBindable="true"
+					IsSideEffecting="false"
+					ReturnType="Edm.String"
+					m:IsAlwaysBindable="false">
+					<Parameter Name="employee" Type="Collection(RefScenario.Employee)" Mode="In" />
+					<Parameter Name="p2" Type="Edm.String" Mode="In" />
+				</FunctionImport>
+
+				<FunctionImport Name="TestCollectionBoundAction" 
+					IsBindable="true"
+					IsSideEffecting="true"
+					ReturnType="Edm.String"
+					m:IsAlwaysBindable="false">
+					<Parameter Name="employee" Type="Collection(RefScenario.Employee)" Mode="In" />
+					<Parameter Name="p2" Type="Edm.String" Mode="In" />
+				</FunctionImport>
+
+			</EntityContainer>
+		</Schema>
+	</edmx:DataServices>
+</edmx:Edmx>

@@ -37,6 +37,11 @@ public abstract class EdmDataServicesDecorator extends EdmDataServices {
   }
 
   @Override
+  public String getSchemaNamespaceOfEdmEntitySet(EdmEntitySet entitySet) {
+    return getDelegate().getSchemaNamespaceOfEdmEntitySet(entitySet);
+  }
+  
+  @Override
   public EdmEntitySet getEdmEntitySet(final EdmEntityType type) {
     return getDelegate().getEdmEntitySet(type);
   }
@@ -47,10 +52,26 @@ public abstract class EdmDataServicesDecorator extends EdmDataServices {
   }
 
   @Override
+  public boolean containsEdmFunctionImport(String functionImportName) {
+    return getDelegate().containsEdmFunctionImport(functionImportName);
+  }
+  
+  @Override
   public EdmFunctionImport findEdmFunctionImport(String functionImportName) {
     return getDelegate().findEdmFunctionImport(functionImportName);
   }
+  
+  @Override
+  public EdmFunctionImport findEdmFunctionImport(String functionImportName, EdmType bindingType) {
+    return getDelegate().findEdmFunctionImport(functionImportName, bindingType);
+  }
 
+  @Override
+  public EdmFunctionImport findEdmFunctionImport(String functionImportName, EdmType bindingType, 
+      EdmFunctionImport.FunctionKind functionKind) {
+    return getDelegate().findEdmFunctionImport(functionImportName, bindingType, functionKind);
+  }
+  
   @Override
   public EdmComplexType findEdmComplexType(String complexTypeFQName) {
     return getDelegate().findEdmComplexType(complexTypeFQName);

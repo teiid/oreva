@@ -2,7 +2,7 @@ package org.odata4j.test.integration.roundtrip;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
-import static org.odata4j.format.FormatType.JSON;
+import static org.odata4j.format.FormatType.JSONVERBOSE;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class AddressBookJettyHttpClientTest extends AbstractJettyHttpClientTest 
   @Parameters
   public static List<Object[]> data() {
     List<Object[]> parametersList = AbstractRuntimeTest.data();
-    parametersList = ParameterizedTestHelper.addVariants(parametersList, FormatType.JSON, FormatType.ATOM);
+    parametersList = ParameterizedTestHelper.addVariants(parametersList, FormatType.JSONVERBOSE, FormatType.ATOM);
     return parametersList;
   }
 
@@ -47,7 +47,7 @@ public class AddressBookJettyHttpClientTest extends AbstractJettyHttpClientTest 
   @Test
   public void stringProperty() throws Exception {
     ContentExchange exchange = sendRequest("Persons(1)/Name", format);
-    if (format.equals(JSON))
+    if (format.equals(JSONVERBOSE))
       assertThat(exchange.getResponseContent(), containsString("\"Susan Summer\""));
     else
       assertThat(exchange.getResponseContent(), containsString(">Susan Summer<"));
@@ -56,10 +56,10 @@ public class AddressBookJettyHttpClientTest extends AbstractJettyHttpClientTest 
   @Test
   public void dateTimeProperty() throws Exception {
     ContentExchange exchange = sendRequest("Persons(2)/BirthDay", format);
-    if (format.equals(JSON))
+    if (format.equals(JSONVERBOSE))
       assertThat(exchange.getResponseContent(), containsString("\"\\/Date(-62121600000)\\/\""));
     else
-      assertThat(exchange.getResponseContent(), containsString(">1968-01-13T00:00<"));
+      assertThat(exchange.getResponseContent(), containsString(">1968-01-13T00:00:00<"));
   }
 
   private ContentExchange sendRequest(String requestUri, FormatType format) throws Exception {

@@ -1,13 +1,23 @@
 package org.odata4j.consumer;
 
+import java.io.Reader;
+import java.io.StringReader;
+
 import org.core4j.Enumerable;
 import org.core4j.Func1;
+import org.odata4j.core.ODataVersion;
 import org.odata4j.core.OEntityId;
 import org.odata4j.core.OEntityIds;
 import org.odata4j.core.OEntityKey;
 import org.odata4j.edm.EdmDataServices;
 import org.odata4j.exceptions.ODataProducerException;
+import org.odata4j.format.FormatType;
 import org.odata4j.format.SingleLink;
+import org.odata4j.format.json.JsonSingleLinkFormatParser;
+import org.odata4j.format.xml.AtomSingleLinkFormatParser;
+import org.odata4j.internal.BOMWorkaroundReader;
+import org.odata4j.stax2.XMLEventReader2;
+import org.odata4j.stax2.util.StaxUtil;
 
 /**
  * Query-links-request implementation.
@@ -40,6 +50,42 @@ public class ConsumerQueryLinksRequest extends AbstractConsumerQueryRequestBase<
         return OEntityIds.parse(getServiceRootUri(), link.getUri());
       }
     });
+  }
+
+  private ODataClientRequest getRequest() {
+    return buildRequest(linksPath(targetNavProp, null));
+  }
+
+  @Override
+  public String formatRequest(FormatType formatType) {
+    ODataClientRequest request = getRequest();
+    return ConsumerBatchRequestHelper.formatSingleRequest(request, formatType);
+  }
+
+  @Override
+  public Object getResult(ODataVersion version, Object payload, FormatType formatType) {
+    Iterable<SingleLink> links = parseLinkQueryResult(new StringReader((String) payload), formatType);
+    Object result = Enumerable.create(links).select(new Func1<SingleLink, OEntityId>() {
+      @Override
+      public OEntityId apply(SingleLink link) {
+        return OEntityIds.parse(link.getUri());
+      }
+    });
+
+    return result;
+  }
+
+  private static Iterable<SingleLink> parseLinkQueryResult(Reader reader, FormatType formatType) {
+    Iterable<SingleLink> links = null;
+
+    if (formatType.equals(FormatType.ATOM)) {
+      XMLEventReader2 linkReader = StaxUtil.newXMLEventReader(new BOMWorkaroundReader(reader));
+      links = AtomSingleLinkFormatParser.parseLinks(linkReader);
+    } else {
+      links = JsonSingleLinkFormatParser.parseLinks(reader);
+    }
+
+    return links;
   }
 
 }

@@ -20,6 +20,7 @@ import org.odata4j.edm.EdmEntityContainer;
 import org.odata4j.edm.EdmEntitySet;
 import org.odata4j.edm.EdmEntityType;
 import org.odata4j.edm.EdmFunctionImport;
+import org.odata4j.edm.EdmFunctionImport.FunctionKind;
 import org.odata4j.edm.EdmProperty;
 import org.odata4j.format.xml.EdmxFormatParser;
 import org.odata4j.format.xml.EdmxFormatWriter;
@@ -294,6 +295,39 @@ public class EdmxFormatParserTest {
     EdmProperty property = product.findProperty("Name");
     assertEquals("001", property.findAnnotation(MYNS, "myattr").getValue());
     assertNotNull(property.findAnnotationElement(MYNS, "myElement"));
+  }
+
+  @Test
+  public void testV3Functions() {
+    XMLEventReader2 reader = StaxUtil.newXMLEventReader(new BufferedReader(
+        new InputStreamReader(getClass().getResourceAsStream("/META-INF/sample_v3_edmx.xml"))));
+    EdmDataServices d = new EdmxFormatParser().parseMetadata(reader);
+    assertTrue("parsed", d != null);
+    
+    // ServiceOperation 
+    EdmFunctionImport customersByCity = d.findEdmFunctionImport("CustomersByCity");
+    assertNotNull(customersByCity);
+    assertEquals(FunctionKind.ServiceOperation, customersByCity.getFunctionKind());
+    
+    // Function
+    EdmFunctionImport relatedCustomers = d.findEdmFunctionImport("GetRelatedCustomers");
+    assertNotNull(relatedCustomers);
+    assertEquals(FunctionKind.Function, relatedCustomers.getFunctionKind());
+    assertEquals(true, relatedCustomers.isBindable());
+    assertEquals(false, relatedCustomers.isSideEffecting());
+    /*
+    EdmType companyType = d.findEdmEntityType("SampleModel.Company");
+    assertNotNull(companyType);
+    assertTrue(companyType instanceof EdmEntityType);
+    assertTrue(((EdmEntityType)companyType).getBindedFunctions().count() > 0);
+    */
+    
+    // Action
+    EdmFunctionImport createOrder = d.findEdmFunctionImport("CreateOrder");
+    assertNotNull(createOrder);
+    assertEquals(FunctionKind.Action, createOrder.getFunctionKind());
+    assertEquals(true, createOrder.isBindable());
+    assertEquals(true, createOrder.isSideEffecting());
   }
 
 }

@@ -13,7 +13,7 @@ public interface SimpleResponse extends BaseResponse {
    * Gets the type of the value
    * @return the type of the value
    */
-  EdmSimpleType getType();
+  EdmSimpleType<?> getType();
 
   /**
    * Gets the value.

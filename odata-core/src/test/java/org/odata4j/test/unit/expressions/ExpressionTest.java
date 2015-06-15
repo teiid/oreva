@@ -111,6 +111,12 @@ public class ExpressionTest {
     t(Expression.double_(2E-1), "2E-1");
     t(Expression.double_(-2.1E+1), "-2.1e+1");
     t(Expression.double_(-2.1E-1), "-2.1E-1");
+    t(Expression.single(-2.1E-1f), "-2.1E-1f");
+    t(Expression.single(-2.1E-1f), "-2.1E-1F");
+    t(Expression.single(-2.1E+1f), "-2.1E+1f");
+    t(Expression.single(-2.1E+1f), "-2.1E+1f");
+    t(Expression.single(-2.1e+1f), "-2.1e+1f");
+    t(Expression.single(2.1E1f), "2.1E1f");
     t(Expression.decimal(new BigDecimal("2")), "2M");
     t(Expression.decimal(new BigDecimal("2.34")), "2.34M");
     t(Expression.decimal(new BigDecimal("2")), "2m");

@@ -1,20 +1,26 @@
 package org.odata4j.test.unit.format.xml;
 
 import static org.custommonkey.xmlunit.XMLAssert.assertXpathExists;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.junit.Before;
 import org.junit.Test;
+import org.odata4j.core.PrefixedNamespace;
 import org.odata4j.edm.EdmAnnotation;
 import org.odata4j.edm.EdmAnnotationAttribute;
 import org.odata4j.edm.EdmAnnotationElement;
@@ -39,6 +45,7 @@ import org.odata4j.edm.EdmReferentialConstraint;
 import org.odata4j.edm.EdmSchema;
 import org.odata4j.edm.EdmSimpleType;
 import org.odata4j.format.xml.EdmxFormatWriter;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 public class EdmxFormatWriterTest {
@@ -60,7 +67,8 @@ public class EdmxFormatWriterTest {
     m.put("edmx", "http://schemas.microsoft.com/ado/2007/06/edmx");
     m.put("d", "http://schemas.microsoft.com/ado/2007/08/dataservices");
     m.put("m", "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata");
-    m.put("edm", "http://schemas.microsoft.com/ado/2008/09/edm");
+    m.put("edm", "http://schemas.microsoft.com/ado/2009/11/edm");
+//    m.put("edm", "http://schemas.microsoft.com/ado/2008/09/edm");
     m.put("annotation", "http://schemas.microsoft.com/ado/2009/02/edm/annotation");
     m.put("myns", "bla");
     m.put("myns2", "blabla");
@@ -134,6 +142,7 @@ public class EdmxFormatWriterTest {
     String xml2 = writer.toString();
 
     assertThat(xml2, containsString("<EntityType OpenType=\"true\" Name=\"Product\">"));
+    Document inDocument = XMLUnit.buildControlDocument(xml2);
 
     assertXpathExists("//edm:Schema/edm:EntityType/@OpenType", xml2);
   }
@@ -167,9 +176,14 @@ public class EdmxFormatWriterTest {
     productSet.setEntityType(product);
     container.addEntitySets(productSet);
     schema.addEntityTypes(product);
+    schema.setAlias("xmlns:myns2=blabla");
+    schema.setAnnotations(annotationAttributes);
     schema.addEntityContainers(container);
 
-    EdmDataServices.Builder serviceBuilder = EdmDataServices.newBuilder().addSchemas(schema);
+    List<PrefixedNamespace> pnList = new ArrayList<PrefixedNamespace>();
+    pnList.add(new PrefixedNamespace("htp://sample.url", "myns2"));
+
+    EdmDataServices.Builder serviceBuilder = EdmDataServices.newBuilder().addSchemas(schema).addNamespaces(pnList);
     EdmDataServices edmService = serviceBuilder.build();
 
     StringWriter writer = new StringWriter();
@@ -270,6 +284,27 @@ public class EdmxFormatWriterTest {
     assertXpathExists("//edm:Schema/mynamespace:AnnotElement/mynamespace:another", xml);
     assertXpathExists("//edm:Schema/mynamespace:AnnotElement/mynamespace:another/mynamespace:yetanother", xml);
     assertXpathExists("//edm:Schema/mynamespace:AnnotElement/mynamespace:another/@mynamespace:foo", xml);
+  }
+
+  @Test
+  public void testFunctionImports() throws XpathException, IOException, SAXException {
+    String xml = createXML();
+
+    assertXpathExists("//edm:EntityContainer/edm:FunctionImport[@Name='ProductSearch' and @m:HttpMethod='GET']", xml);
+    assertXpathExists("//edm:EntityContainer/edm:FunctionImport[@Name='ProductSearch' and not(@IsBindable)]", xml);
+    assertXpathExists("//edm:EntityContainer/edm:FunctionImport[@Name='ProductSearch' and not(@IsSideEffecting)]", xml);
+    assertXpathExists("//edm:EntityContainer/edm:FunctionImport[@Name='ProductSearch' and not(@m:IsAlwaysBindable)]", xml);
+    
+    assertXpathExists("//edm:EntityContainer/edm:FunctionImport[@Name='PerformAction' and @IsBindable='true']", xml);
+    assertXpathExists("//edm:EntityContainer/edm:FunctionImport[@Name='PerformAction' and @IsSideEffecting='true']", xml);
+    assertXpathExists("//edm:EntityContainer/edm:FunctionImport[@Name='PerformAction' and @m:IsAlwaysBindable='false']", xml);
+    assertXpathExists("//edm:EntityContainer/edm:FunctionImport[@Name='PerformAction' and not(@m:HttpMethod)]", xml);
+
+    assertXpathExists("//edm:EntityContainer/edm:FunctionImport[@Name='CalculateStuff' and @IsBindable='true']", xml);
+    assertXpathExists("//edm:EntityContainer/edm:FunctionImport[@Name='CalculateStuff' and @IsSideEffecting='false']", xml);
+    assertXpathExists("//edm:EntityContainer/edm:FunctionImport[@Name='CalculateStuff' and @m:IsAlwaysBindable='false']", xml);
+    assertXpathExists("//edm:EntityContainer/edm:FunctionImport[@Name='CalculateStuff' and not(@m:HttpMethod)]", xml);
+
   }
 
   private String createXML() {
@@ -374,19 +409,44 @@ public class EdmxFormatWriterTest {
     associationSets.add(associationSet);
 
     // ------ Function Product Search ------ //
-    EdmFunctionImport.Builder functionImport = EdmFunctionImport.newBuilder().setName("ProductSearch");
-    functionImport = functionImport.setEntitySet(productSet).setHttpMethod("GET");
-    functionImport = functionImport.setReturnType(EdmCollectionType.newBuilder().setKind(CollectionKind.Collection).setCollectionType(product));
-    functionImport.setAnnotationElements(createAnnotationElement("myns", "bla", "MyFunctionImport", "testFunctionImport"));
+    EdmFunctionImport.Builder serviceOperation = EdmFunctionImport.newBuilder().setName("ProductSearch");
+    serviceOperation = serviceOperation.setEntitySet(productSet).setHttpMethod("GET");
+    serviceOperation = serviceOperation.setReturnType(EdmCollectionType.newBuilder().setKind(CollectionKind.Collection).setCollectionType(product));
+    serviceOperation.setAnnotationElements(createAnnotationElement("myns", "bla", "MyFunctionImport", "testFunctionImport"));
     EdmFunctionParameter.Builder functionImportParameter = EdmFunctionParameter.newBuilder().setName("q").setType(EdmSimpleType.STRING);
     functionImportParameter.setAnnotationElements(createAnnotationElement("myns", "bla", "MyAnnotation", "test"));
-    functionImport.addParameters(functionImportParameter);
+    serviceOperation.addParameters(functionImportParameter);
 
+    EdmFunctionImport.Builder action = 
+        EdmFunctionImport.newBuilder()
+        .setName("PerformAction")
+        .setBindable(true)
+        .setSideEffecting(true)
+        .setReturnType(EdmSimpleType.STRING)
+        .setAlwaysBindable(false);
+    
+    EdmFunctionParameter.Builder functionParameter = EdmFunctionParameter.newBuilder().setName("p").setType(product);
+    action.addParameters(functionParameter);
+
+    EdmFunctionImport.Builder function = 
+        EdmFunctionImport.newBuilder()
+        .setName("CalculateStuff")
+        .setBindable(true)
+        .setSideEffecting(false)
+        .setReturnType(EdmSimpleType.STRING)
+        .setAlwaysBindable(false);
+    
+    EdmFunctionParameter.Builder param = EdmFunctionParameter.newBuilder().setName("p").setType(product);
+    function.addParameters(param);
+
+       
     // ----------------- Container ------------------//
     container.setAnnotationElements(createAnnotationElement("myns", "bla", "MyEntitySet", "testContainer"));
     container.addEntitySets(productSet, categorySet);
     container.addAssociationSets(associationSets);
-    container.addFunctionImports(functionImport);
+    container.addFunctionImports(serviceOperation);
+    container.addFunctionImports(action);
+    container.addFunctionImports(function);
 
     // ----------------- Schema ------------------//
     schema.addEntityTypes(product, category);

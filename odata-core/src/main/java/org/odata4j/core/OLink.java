@@ -36,6 +36,11 @@ public interface OLink extends Titled {
   String getHref();
 
   /**
+   * Gets the link type.
+   * @return the link type.
+   */
+  String getType();
+  /**
    * Returns true if this OLink represents inlined content, false otherwise.
    */
   boolean isInline();

@@ -1,7 +1,9 @@
 package org.odata4j.consumer;
 
 import org.odata4j.core.OCountRequest;
+import org.odata4j.core.ODataVersion;
 import org.odata4j.exceptions.ODataProducerException;
+import org.odata4j.format.FormatType;
 
 /**
  * Count-request implementation.
@@ -29,6 +31,13 @@ public class ConsumerCountRequest implements OCountRequest {
   }
 
   public int execute() throws ODataProducerException {
+    ODataClientRequest request = getRequest();
+
+    String valueString = client.requestBody(client.getFormatType(), request);
+    return Integer.parseInt(valueString);
+  }
+
+  private ODataClientRequest getRequest() {
     String uri = baseUri;
 
     if (entitySetName != null) {
@@ -42,8 +51,25 @@ public class ConsumerCountRequest implements OCountRequest {
     }
 
     ODataClientRequest request = ODataClientRequest.get(uri);
-    String valueString = client.requestBody(client.getFormatType(), request);
-    return Integer.parseInt(valueString);
+
+    return request;
+  }
+
+  // the client should get the count and set it in the batch response
+  @Override
+  public Integer getResult(ODataVersion version, Object payload, FormatType formatType) {
+    if (payload instanceof String) {
+      String valueString = (String) payload;
+      return Integer.parseInt(valueString);
+    }
+
+    throw new IllegalArgumentException("the pay load type is not string for entityCount request");
+  }
+
+  @Override
+  public String formatRequest(FormatType formatType) {
+    ODataClientRequest request = getRequest();
+    return ConsumerBatchRequestHelper.formatSingleRequest(request, formatType);
   }
 
 }

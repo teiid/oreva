@@ -7,7 +7,7 @@ import org.odata4j.exceptions.ODataProducerException;
  *
  * @param <T>  the entity representation as a java type
  */
-public interface OCreateRequest<T> {
+public interface OCreateRequest<T> extends OBatchSupport {
 
   /**
    * Set properties on the new entity.

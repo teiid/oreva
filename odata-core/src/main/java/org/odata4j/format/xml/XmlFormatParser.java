@@ -22,6 +22,7 @@ public class XmlFormatParser {
   public static final String NS_EDM2009_11 = "http://schemas.microsoft.com/ado/2009/11/edm"; // edm 3.0
   public static final String NS_EDMX = "http://schemas.microsoft.com/ado/2007/06/edmx";
   public static final String NS_EDMANNOTATION = "http://schemas.microsoft.com/ado/2009/02/edm/annotation";
+  public static final String NS_DSDS_EDMANNOTATION = "http://www.lgc.com/dsdataserver/annotation";
 
   public static final QName2 EDMX_EDMX = new QName2(NS_EDMX, "Edmx");
   public static final QName2 EDMX_DATASERVICES = new QName2(NS_EDMX, "DataServices");
@@ -151,6 +152,8 @@ public class XmlFormatParser {
 
   public static final QName2 M_ETAG = new QName2(NS_METADATA, "etag");
   public static final QName2 M_PROPERTIES = new QName2(NS_METADATA, "properties");
+  public static final QName2 M_ACTION = new QName2(NS_METADATA, "action");
+  public static final QName2 M_FUNCTION = new QName2(NS_METADATA, "function");
   public static final QName2 M_TYPE = new QName2(NS_METADATA, "type");
   public static final QName2 M_NULL = new QName2(NS_METADATA, "null");
   public static final QName2 M_INLINE = new QName2(NS_METADATA, "inline");

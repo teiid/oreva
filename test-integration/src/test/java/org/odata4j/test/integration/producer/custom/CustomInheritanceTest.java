@@ -21,7 +21,13 @@ public class CustomInheritanceTest extends CustomBaseTest {
   @Test
   public void testGetEntityPolymorphic() throws Exception {
     // GET an entity whose type is actually a subclass of the requested entity set.
-    testGetEntity(FormatType.JSON);
+    testGetEntity(FormatType.JSONVERBOSE);
+  }
+
+  @Test
+  public void testGetEntityPolymorphicJsonFullMetadata() throws Exception {
+    // GET an entity whose type is actually a subclass of the requested entity set.
+    testGetEntity(FormatType.JSONLITEFULLMETADATA);
   }
 
   @Test
@@ -43,7 +49,7 @@ public class CustomInheritanceTest extends CustomBaseTest {
   @Test
   public void testGetInlineEntityPolymorphic() throws Exception {
     // expand a nav prop where the associated entity is-a subclass of the nav props type.
-    testGetInlineEntity(FormatType.JSON);
+    testGetInlineEntity(FormatType.JSONVERBOSE);
   }
 
   @Test
@@ -66,7 +72,7 @@ public class CustomInheritanceTest extends CustomBaseTest {
 
   @Test
   public void testGetEntitiesPolymorphic() throws Exception {
-    testGetEntities(FormatType.JSON);
+    testGetEntities(FormatType.JSONVERBOSE);
   }
 
   @Test
@@ -98,7 +104,7 @@ public class CustomInheritanceTest extends CustomBaseTest {
   @Test
   public void testGetInlineEntitiesPolymorphic() throws Exception {
     // expand a nav prop where the associated entity is-a subclass of the nav props type.
-    testGetInlineEntities(FormatType.JSON);
+    testGetInlineEntities(FormatType.JSONVERBOSE);
   }
 
   @Test

@@ -26,6 +26,12 @@ import org.joda.time.LocalDateTime;
  * @param <T>  the entity representation as a java type
  */
 public interface OFunctionRequest<T> extends OQueryRequest<T> {
+  
+  /** Binds an entitySet the function/action. */
+  OFunctionRequest<T> bind(String entitySetName);
+
+  /** Binds an entity to the function/action. */
+  OFunctionRequest<T> bind(String entitySetName, OEntityKey key);
 
   /** Adds a generic parameter. */
   OFunctionRequest<T> parameter(String name, OObject value);

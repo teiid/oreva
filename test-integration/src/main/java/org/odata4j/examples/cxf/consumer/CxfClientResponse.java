@@ -1,9 +1,11 @@
 package org.odata4j.examples.cxf.consumer;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.http.Header;
@@ -48,4 +50,16 @@ public class CxfClientResponse implements ODataClientResponse {
       Throwables.propagate(e);
     }
   }
+
+@Override
+public InputStream getEntityInputStream() {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+@Override
+public MediaType getMediaType() {
+	// TODO Auto-generated method stub
+	return null;
+}
 }

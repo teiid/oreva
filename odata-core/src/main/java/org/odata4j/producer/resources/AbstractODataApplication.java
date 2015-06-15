@@ -17,12 +17,14 @@ public abstract class AbstractODataApplication extends Application {
   @Override
   public Set<Class<?>> getClasses() {
     Set<Class<?>> classes = new HashSet<Class<?>>();
+    classes.add(BatchRequestResource.class);
     classes.add(EntitiesRequestResource.class);
     classes.add(EntityRequestResource.class);
     classes.add(MetadataResource.class);
     classes.add(ServiceDocumentResource.class);
-    classes.add(ODataBatchProvider.class);
+    classes.add(ODataBatchUnitProvider.class);
     classes.add(ExceptionMappingProvider.class);
+    classes.add(ODataWriteResponseProvider.class);
     return classes;
   }
 }

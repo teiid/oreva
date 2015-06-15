@@ -1,6 +1,8 @@
 package org.odata4j.core;
 
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.sql.Blob;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
@@ -24,24 +26,41 @@ public class OSimpleObjects {
     if (type == EdmSimpleType.STRING) {
       String sValue = null;
       if (value != null) {
-        if (value instanceof Character) {
-          sValue = value.toString();
-        } else {
-          sValue = (String) value;
-        }
+        sValue = value.toString();
       }
       return (OSimpleObject<T>) Impl.create(EdmSimpleType.STRING, sValue);
     } else if (type == EdmSimpleType.BOOLEAN) {
       Boolean bValue = (Boolean) value;
       return (OSimpleObject<T>) Impl.create(EdmSimpleType.BOOLEAN, bValue);
     } else if (type == EdmSimpleType.INT16) {
-      Short sValue = (Short) value;
+      Short sValue = null;
+      if (value != null) {
+        if (value instanceof Number) {
+          sValue = ((Number) value).shortValue();
+        } else {
+          sValue = Short.valueOf(value.toString());
+        }
+      }
       return (OSimpleObject<T>) Impl.create(EdmSimpleType.INT16, sValue);
     } else if (type == EdmSimpleType.INT32) {
-      Integer iValue = (Integer) value;
+      Integer iValue = null;
+      if (value != null) {
+        if (value instanceof Number) {
+          iValue = ((Number) value).intValue();
+        } else {
+          iValue = Integer.valueOf(value.toString());
+        }
+      }
       return (OSimpleObject<T>) Impl.create(EdmSimpleType.INT32, iValue);
     } else if (type == EdmSimpleType.INT64) {
-      Long iValue = (Long) value;
+      Long iValue = null;
+      if (value != null) {
+        if (value instanceof Number) {
+          iValue = ((Number) value).longValue();
+        } else {
+          iValue = Long.valueOf(value.toString());
+        }
+      }
       return (OSimpleObject<T>) Impl.create(EdmSimpleType.INT64, iValue);
     } else if (type == EdmSimpleType.BYTE) {
       UnsignedByte bValue = (UnsignedByte) value;
@@ -61,11 +80,32 @@ public class OSimpleObjects {
     } else if (type == EdmSimpleType.BINARY) {
       byte[] bValue = (byte[]) value;
       return (OSimpleObject<T>) Impl.create(EdmSimpleType.BINARY, bValue);
+    } else if (type == EdmSimpleType.STREAM) {
+      if (value instanceof InputStream) {
+        InputStream bValue = (InputStream) value;
+        return (OSimpleObject<T>) Impl.create(EdmSimpleType.INPUTSTREAM, bValue);
+      }
+      Blob bValue = (Blob) value; 
+      return (OSimpleObject<T>) Impl.create(EdmSimpleType.STREAM, bValue);
     } else if (type == EdmSimpleType.DOUBLE) {
-      Double dValue = (Double) value;
+      Double dValue = null;
+      if (value != null) {
+        if (value instanceof Number) {
+          dValue = ((Number) value).doubleValue();
+        } else {
+          dValue = Double.valueOf(value.toString());
+        }
+      }
       return (OSimpleObject<T>) Impl.create(EdmSimpleType.DOUBLE, dValue);
     } else if (type == EdmSimpleType.SINGLE) {
-      Float fValue = (Float) value;
+      Float fValue = null;
+      if (value != null) {
+        if (value instanceof Number) {
+          fValue = ((Number) value).floatValue();
+        } else {
+          fValue = Float.valueOf(value.toString());
+        }
+      }
       return (OSimpleObject<T>) Impl.create(EdmSimpleType.SINGLE, fValue);
     } else if (type == EdmSimpleType.GUID) {
       Guid gValue = TypeConverter.convert(value, Guid.class);
@@ -98,10 +138,22 @@ public class OSimpleObjects {
       return (OSimpleObject<V>) Impl.create(EdmSimpleType.INT32, Integer.parseInt(value));
     if (EdmSimpleType.INT64.equals(type))
       return (OSimpleObject<V>) Impl.create(EdmSimpleType.INT64, Long.parseLong(value));
-    if (EdmSimpleType.SINGLE.equals(type))
-      return (OSimpleObject<V>) Impl.create(EdmSimpleType.SINGLE, Float.parseFloat(value));
-    if (EdmSimpleType.DOUBLE.equals(type))
-      return (OSimpleObject<V>) Impl.create(EdmSimpleType.DOUBLE, Double.parseDouble(value));
+    if (EdmSimpleType.SINGLE.equals(type)) {
+      if (value.equals(ODataConstants.NaN_value)) {
+        return (OSimpleObject<V>) Impl.create(EdmSimpleType.SINGLE, Float.NaN);
+      }
+      else {
+        return (OSimpleObject<V>) Impl.create(EdmSimpleType.SINGLE, Float.parseFloat(value));
+      }
+    }
+
+    if (EdmSimpleType.DOUBLE.equals(type)) {
+      if (value.equals(ODataConstants.NaN_value)) {
+        return (OSimpleObject<V>) Impl.create(EdmSimpleType.DOUBLE, Double.NaN);
+      } else {
+        return (OSimpleObject<V>) Impl.create(EdmSimpleType.DOUBLE, Double.parseDouble(value));
+      }
+    }
     if (EdmSimpleType.DECIMAL.equals(type))
       return (OSimpleObject<V>) Impl.create(EdmSimpleType.DECIMAL, new BigDecimal(value));
     if (EdmSimpleType.BINARY.equals(type))

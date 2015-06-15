@@ -16,7 +16,7 @@ public class JsonPropertyFormatWriterTest extends AbstractPropertyFormatWriterTe
 
   @BeforeClass
   public static void setupClass() throws Exception {
-    createFormatWriter(FormatType.JSON);
+    createFormatWriter(FormatType.JSONVERBOSE);
   }
 
   @Test
