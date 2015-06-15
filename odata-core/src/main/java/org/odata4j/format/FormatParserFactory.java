@@ -1,5 +1,7 @@
 package org.odata4j.format;
 
+import java.util.Map;
+
 import javax.ws.rs.core.MediaType;
 
 import org.odata4j.core.OCollection;
@@ -15,8 +17,21 @@ import org.odata4j.format.json.JsonEntityFormatParser;
 import org.odata4j.format.json.JsonEntryFormatParser;
 import org.odata4j.format.json.JsonErrorFormatParser;
 import org.odata4j.format.json.JsonFeedFormatParser;
+import org.odata4j.format.json.JsonParametersFormatParser;
 import org.odata4j.format.json.JsonSimpleObjectFormatParser;
 import org.odata4j.format.json.JsonSingleLinkFormatParser;
+import org.odata4j.format.jsonlite.JsonLiteCollectionFormatParser;
+import org.odata4j.format.jsonlite.JsonLiteComplexObjectFormatParser;
+import org.odata4j.format.jsonlite.JsonLiteEntityFormatParser;
+import org.odata4j.format.jsonlite.JsonLiteEntryFormatParser;
+import org.odata4j.format.jsonlite.JsonLiteErrorFormatParser;
+import org.odata4j.format.jsonlite.JsonLiteFeedFormatParser;
+import org.odata4j.format.jsonlite.JsonLiteParametersFormatParser;
+import org.odata4j.format.jsonlite.JsonLiteSimpleObjectFormatParser;
+import org.odata4j.format.jsonlite.JsonLiteSingleLinkFormatParser;
+import org.odata4j.format.jsonlite.OdataJsonLiteConstant;
+import org.odata4j.format.xml.AtomCollectionFormatParser;
+import org.odata4j.format.xml.AtomComplexFormatParser;
 import org.odata4j.format.xml.AtomEntryFormatParser;
 import org.odata4j.format.xml.AtomErrorFormatParser;
 import org.odata4j.format.xml.AtomFeedFormatParser;
@@ -43,14 +58,31 @@ public class FormatParserFactory {
     FormatParser<OError> getErrorFormatParser(Settings settings);
 
     FormatParser<OEntity> getEntityFormatParser(Settings settings);
+
+    FormatParser<Parameters> getParametersFormatParser(Settings settings);
   }
 
   @SuppressWarnings("unchecked")
   public static <T> FormatParser<T> getParser(Class<T> targetType,
       FormatType type, Settings settings) {
-    FormatParsers formatParsers = type.equals(FormatType.JSON)
-        ? new JsonParsers()
-        : new AtomParsers();
+
+    // We will be treating json-lite as default format type which will return minimal metadata. $format=json or jsonlite
+    // Also we are supporting json-verbose format which can be accessed using $format=jsonverbose or verbosejson
+     
+    FormatParsers formatParsers = null;
+    if (type.equals(FormatType.JSON)) {
+      formatParsers = new JsonLiteParsers(OdataJsonLiteConstant.METADATA_TYPE_MINIMALMETADATA);
+    } else if (type.equals(FormatType.JSONLITEFULLMETADATA)) {
+      formatParsers = new JsonLiteParsers(OdataJsonLiteConstant.METADATA_TYPE_FULLMETADATA);
+    } else if (type.equals(FormatType.JSONLITENOMETADATA)) {
+
+      formatParsers = new JsonLiteParsers(OdataJsonLiteConstant.METADATA_TYPE_NOMETADATA);
+    }
+    else if (type.equals(FormatType.JSONVERBOSE)) {
+      formatParsers = new JsonVerboseParsers();
+    } else {
+      formatParsers = new AtomParsers();
+    }
 
     if (Feed.class.isAssignableFrom(targetType)) {
       return (FormatParser<T>) formatParsers.getFeedFormatParser(settings);
@@ -68,6 +100,8 @@ public class FormatParserFactory {
       return (FormatParser<T>) formatParsers.getErrorFormatParser(settings);
     } else if (OEntity.class.isAssignableFrom(targetType)) {
       return (FormatParser<T>) formatParsers.getEntityFormatParser(settings);
+    } else if (Parameters.class.isAssignableFrom(targetType)) {
+      return (FormatParser<T>) formatParsers.getParametersFormatParser(settings);
     }
     throw new IllegalArgumentException("Unable to locate format parser for " + targetType.getName() + " and format " + type);
   }
@@ -75,8 +109,19 @@ public class FormatParserFactory {
   public static <T> FormatParser<T> getParser(Class<T> targetType, MediaType contentType, Settings settings) {
 
     FormatType type;
-    if (contentType.isCompatible(MediaType.APPLICATION_JSON_TYPE))
-      type = FormatType.JSON;
+
+    if (contentType.isCompatible(MediaType.APPLICATION_JSON_TYPE)) {
+      Map<String, String> parameters = contentType.getParameters();
+      if (parameters.containsValue(OdataJsonLiteConstant.VERBOSE_VALUE)) {
+        type = FormatType.JSONVERBOSE;
+      } else if (parameters.containsValue(OdataJsonLiteConstant.METADATA_TYPE_FULLMETADATA)) {
+        type = FormatType.JSONLITEFULLMETADATA;
+      } else if (parameters.containsValue(OdataJsonLiteConstant.METADATA_TYPE_NOMETADATA)) {
+        type = FormatType.JSONLITENOMETADATA;
+      } else {
+        type = FormatType.JSON;
+      }
+    }
     else if (contentType.isCompatible(MediaType.APPLICATION_ATOM_XML_TYPE) && (Feed.class.isAssignableFrom(targetType) || Entry.class.isAssignableFrom(targetType))
         || contentType.isCompatible(MediaType.APPLICATION_XML_TYPE))
       type = FormatType.ATOM;
@@ -86,7 +131,7 @@ public class FormatParserFactory {
     return getParser(targetType, type, settings);
   }
 
-  public static class JsonParsers implements FormatParsers {
+  public static class JsonVerboseParsers implements FormatParsers {
 
     @Override
     public FormatParser<Feed> getFeedFormatParser(Settings settings) {
@@ -128,18 +173,78 @@ public class FormatParserFactory {
       return new JsonEntityFormatParser(settings);
     }
 
+    @Override
+    public FormatParser<Parameters> getParametersFormatParser(Settings settings) {
+      return new JsonParametersFormatParser(settings);
+    }
+
+  }
+
+  public static class JsonLiteParsers implements FormatParsers {
+
+    private String metadataType;
+
+    public JsonLiteParsers(String metadataType) {
+      this.metadataType = metadataType;
+    }
+
+    @Override
+    public FormatParser<Feed> getFeedFormatParser(Settings settings) {
+      return new JsonLiteFeedFormatParser(settings, metadataType);
+    }
+
+    @Override
+    public FormatParser<Entry> getEntryFormatParser(Settings settings) {
+      return new JsonLiteEntryFormatParser(settings);
+    }
+
+    @Override
+    public FormatParser<SingleLink> getSingleLinkFormatParser(Settings settings) {
+      return new JsonLiteSingleLinkFormatParser(settings);
+    }
+
+    @Override
+    public FormatParser<OComplexObject> getComplexObjectFormatParser(Settings settings) {
+      return new JsonLiteComplexObjectFormatParser(settings, metadataType);
+    }
+
+    @Override
+    public FormatParser<OCollection<? extends OObject>> getCollectionFormatParser(Settings settings) {
+      return new JsonLiteCollectionFormatParser(settings);
+    }
+
+    @Override
+    public FormatParser<OSimpleObject<?>> getSimpleObjectFormatParser(Settings settings) {
+      return new JsonLiteSimpleObjectFormatParser(settings);
+    }
+
+    @Override
+    public FormatParser<OError> getErrorFormatParser(Settings settings) {
+      return new JsonLiteErrorFormatParser(settings);
+    }
+
+    @Override
+    public FormatParser<OEntity> getEntityFormatParser(Settings settings) {
+      return new JsonLiteEntityFormatParser(settings);
+    }
+
+    @Override
+    public FormatParser<Parameters> getParametersFormatParser(Settings settings) {
+      return new JsonLiteParametersFormatParser(settings);
+    }
+
   }
 
   public static class AtomParsers implements FormatParsers {
 
     @Override
     public FormatParser<Feed> getFeedFormatParser(Settings settings) {
-      return new AtomFeedFormatParser(settings.metadata, settings.entitySetName, settings.entityKey);
+      return new AtomFeedFormatParser(settings.metadata, settings.entitySetName, settings.entityKey, settings.fcMapping, settings.parseFunction);
     }
 
     @Override
     public FormatParser<Entry> getEntryFormatParser(Settings settings) {
-      return new AtomEntryFormatParser(settings.metadata, settings.entitySetName, settings.entityKey);
+      return new AtomEntryFormatParser(settings.metadata, settings.entitySetName, settings.entityKey, settings.fcMapping, settings.parseFunction);
     }
 
     @Override
@@ -149,12 +254,12 @@ public class FormatParserFactory {
 
     @Override
     public FormatParser<OComplexObject> getComplexObjectFormatParser(Settings settings) {
-      throw new UnsupportedOperationException("Not supported yet.");
+      return new AtomComplexFormatParser(settings);
     }
 
     @Override
     public FormatParser<OCollection<? extends OObject>> getCollectionFormatParser(Settings settings) {
-      throw new UnsupportedOperationException("Not supported yet.");
+      return new AtomCollectionFormatParser(settings);
     }
 
     @Override
@@ -170,6 +275,11 @@ public class FormatParserFactory {
     @Override
     public FormatParser<OEntity> getEntityFormatParser(Settings settings) {
       throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public FormatParser<Parameters> getParametersFormatParser(Settings settings) {
+      throw new UnsupportedOperationException("Not supported.");
     }
 
   }

@@ -36,6 +36,11 @@ public class OLinks {
   public static ORelatedEntityLinkInline relatedEntityInline(final String relation, final String title, final String href, final OEntity relatedEntity) {
     return new ORelatedEntityLinkInlineImpl(relation, title, href, relatedEntity);
   }
+  
+  public static ONamedStreamLink namedStreamLink(final String relation, final String title, final String href, final String type) {
+    return new ONamedStreamLinkImpl(relation, title, href, type);
+    
+  }
 
   private static abstract class OLinkImpl implements OLink {
     private final Class<?> interfaceType;
@@ -43,14 +48,23 @@ public class OLinks {
     private final String title;
     private final String relation;
     private final String href;
+    private final String type;
 
     public OLinkImpl(Class<?> interfaceType, String relation, String title, String href) {
       this.interfaceType = interfaceType;
       this.title = title;
       this.relation = relation;
       this.href = href;
+      this.type = null;
     }
 
+    public OLinkImpl(Class<?> interfaceType, String relation, String title, String href, String type) {
+      this.interfaceType = interfaceType;
+      this.title = title;
+      this.relation = relation;
+      this.href = href;
+      this.type = type;
+    }
     @Override
     public String getTitle() {
       return title;
@@ -66,6 +80,11 @@ public class OLinks {
       return href;
     }
 
+    @Override
+    public String getType() {
+      return this.type;
+    }
+    
     @Override
     public String toString() {
       return String.format("%s[rel=%s,title=%s,href=%s]", interfaceType.getSimpleName(), relation, title, href);
@@ -184,4 +203,31 @@ public class OLinks {
 
   }
 
+  private static class ONamedStreamLinkImpl extends OLinkImpl implements ONamedStreamLink {
+
+    public ONamedStreamLinkImpl(String relation, String title, String href, String type) {
+      super(ONamedStreamLink.class, relation, title, href, type);
+    }
+
+    @Override
+    public boolean isInline() {
+      return false;
+    }
+
+    @Override
+    public boolean isCollection() {
+      return false;
+    }
+
+    @Override
+    public OEntity getRelatedEntity() {
+      return null;
+    }
+
+    @Override
+    public List<OEntity> getRelatedEntities() {
+      return null;
+    }
+    
+  }
 }

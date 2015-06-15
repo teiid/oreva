@@ -114,6 +114,7 @@
     <httpclient.version>4.2.1</httpclient.version>
     <slf4j.version>1.6.4</slf4j.version>
     <xmlunit.version>1.3</xmlunit.version>
+	<jersey-multipart.version>1.6</jersey-multipart.version>
   </properties>
 
   <repositories>

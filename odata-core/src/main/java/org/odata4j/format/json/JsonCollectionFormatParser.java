@@ -6,6 +6,7 @@ import org.odata4j.core.OCollection;
 import org.odata4j.core.OCollections;
 import org.odata4j.core.OComplexObject;
 import org.odata4j.core.ODataVersion;
+import org.odata4j.core.OEntity;
 import org.odata4j.core.OObject;
 import org.odata4j.core.OSimpleObjects;
 import org.odata4j.edm.EdmCollectionType;
@@ -116,6 +117,7 @@ public class JsonCollectionFormatParser extends JsonFormatParser implements Form
         this.metadata,
         entitySet.getName(),
         this.entityKey,
+        null, // feed customization mapping
         this.isResponse,
         this.returnType.getItemType());
 
@@ -128,10 +130,34 @@ public class JsonCollectionFormatParser extends JsonFormatParser implements Form
     return c.build();
   }
 
-  protected OCollection<? extends OObject> parseCollection(JsonStreamReader jsr) {
+  /**
+   * we make this public so that the JsonParametersFormatParser can use it to read parameter whose type is collection.
+   * Also add code to handle a collection of entity.
+   * @param jsr the stream reader
+   * @return the collection object
+   */
+  public OCollection<? extends OObject> parseCollection(JsonStreamReader jsr) {
+    /* in V3 VJson, the collection, will looks like this, so we will skip till we see startArray('['
+     * begin-object
+        [collMetadataNVP value-seperator]
+        resultsNVP
+       end-object
+     */
+    int startObjCount = 0;
     // an array of objects:
     ensureNext(jsr);
-    ensureStartArray(jsr.nextEvent());
+    JsonEvent event = jsr.nextEvent();
+    while (!event.isStartArray()) {
+      if (event.isStartObject()) {
+        startObjCount ++;
+      } else if (event.isEndObject()) {
+        startObjCount --;
+      }
+      
+      ensureNext(jsr);
+      event = jsr.nextEvent();
+    }
+    ensureStartArray(event);
 
     OCollection.Builder<OObject> c = newCollectionBuilder();
 
@@ -155,7 +181,15 @@ public class JsonCollectionFormatParser extends JsonFormatParser implements Form
           } else {
             break;
           }
-        } else {
+        } else if (parser instanceof JsonEntityFormatParser) {
+          OEntity obj = ((JsonEntityFormatParser)parser).parseSingleEntity(jsr);
+          if (obj != null) {
+            c = c.add(obj);
+          } else {
+            break;
+          }
+        }
+        else {
           throw new NotImplementedException("collections of type: " + this.returnType.getItemType().getFullyQualifiedTypeName() + " not implemented");
         }
       }
@@ -163,6 +197,17 @@ public class JsonCollectionFormatParser extends JsonFormatParser implements Form
 
     // we should see the end of the array
     ensureEndArray(jsr.previousEvent());
+    
+    while (startObjCount > 0){
+      event = jsr.nextEvent();
+      if (event.isStartObject()) {
+        startObjCount++;
+      } else if (event.isEndObject()) {
+        startObjCount --;
+      }
+    }
+    
+    // make sure we match 
 
     return c.build();
   }
@@ -192,9 +237,10 @@ public class JsonCollectionFormatParser extends JsonFormatParser implements Form
         this.metadata,
         this.entitySetName,
         this.entityKey,
+        null, // FeedCustomizationMapping fcMapping,
         false, // boolean isResponse);
         edmType); // expected type
 
-    return FormatParserFactory.getParser(EdmType.getInstanceType(edmType), FormatType.JSON, s);
+    return FormatParserFactory.getParser(EdmType.getInstanceType(edmType), FormatType.JSONVERBOSE, s);
   }
 }

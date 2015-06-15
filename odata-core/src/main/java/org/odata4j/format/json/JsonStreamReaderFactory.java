@@ -7,6 +7,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Stack;
 
+import org.odata4j.core.ODataConstants;
 import org.odata4j.format.json.JsonStreamReaderFactory.JsonParseException;
 import org.odata4j.format.json.JsonStreamReaderFactory.JsonStreamReader;
 import org.odata4j.format.json.JsonStreamReaderFactory.JsonStreamReader.JsonEndPropertyEvent;
@@ -108,7 +109,8 @@ public class JsonStreamReaderFactory {
       FALSE,
       NULL,
       NUMBER,
-      STRING;
+      STRING,
+      NaN;
     }
 
     public class JsonToken {
@@ -435,6 +437,8 @@ class JsonStreamTokenizerImpl implements JsonStreamTokenizer {
       token = new JsonToken(JsonTokenType.FALSE, "false");
     } else if (isNull(memory)) {
       token = new JsonToken(JsonTokenType.NULL, "null");
+    } else if (isNaN(memory)) {
+      token = new JsonToken(JsonTokenType.NaN, ODataConstants.NaN_value);
     }
     return token != null;
   }
@@ -493,6 +497,13 @@ class JsonStreamTokenizerImpl implements JsonStreamTokenizer {
         && str.charAt(1) == 'u'
         && str.charAt(2) == 'l'
         && str.charAt(3) == 'l';
+  }
+
+  private boolean isNaN(StringBuilder str) {
+    return str.length() == 3
+        && str.charAt(0) == 'N'
+        && str.charAt(1) == 'a'
+        && str.charAt(2) == 'N';
   }
 
 }
@@ -610,6 +621,7 @@ class JsonStreamReaderImpl implements JsonStreamReader {
         case NUMBER:
         case TRUE:
         case FALSE:
+        case NaN:
           expectCommaOrEnd = true;
           return createValueEvent(token.value);
         case NULL:

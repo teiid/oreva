@@ -3,7 +3,6 @@ package org.odata4j.format.json;
 import java.io.Reader;
 
 import org.odata4j.core.OEntity;
-import org.odata4j.edm.EdmFunctionImport;
 import org.odata4j.format.FormatParser;
 import org.odata4j.format.Settings;
 
@@ -45,15 +44,21 @@ public class JsonEntityFormatParser extends JsonFormatParser implements FormatPa
         ensureStartObject(jsr.nextEvent());
       }
 
-      // parse the entry
-      EdmFunctionImport fi = metadata.findEdmFunctionImport(entitySetName);
-
-      return parseEntry(fi.getEntitySet(), jsr).getEntity();
+      return parseEntry(parseFunction.getEntitySet(), jsr).getEntity();
 
       // no interest in the closing events
     } finally {
       jsr.close();
     }
+  }
+
+  /**
+   * Helper function to parse a OEntity out of the stream, used in function parameter parsing.
+   * @param jsr the json stream reader.
+   * @return the OEntity
+   */
+  public OEntity parseSingleEntity(JsonStreamReaderFactory.JsonStreamReader jsr) {
+    return parseEntry(parseFunction.getEntitySet(), jsr).getEntity();
   }
 
 }

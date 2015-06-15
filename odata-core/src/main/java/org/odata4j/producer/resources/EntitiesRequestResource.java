@@ -24,7 +24,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.Providers;
+import javax.ws.rs.ext.ContextResolver;
 
 import org.odata4j.core.Guid;
 import org.odata4j.core.ODataConstants;
@@ -36,6 +36,7 @@ import org.odata4j.exceptions.NotFoundException;
 import org.odata4j.exceptions.UnsupportedMediaTypeException;
 import org.odata4j.format.FormatWriter;
 import org.odata4j.format.FormatWriterFactory;
+import org.odata4j.format.writer.BufferOrFileResponseWriter;
 import org.odata4j.internal.InternalUtil;
 import org.odata4j.producer.CountResponse;
 import org.odata4j.producer.EntitiesResponse;
@@ -56,7 +57,7 @@ public class EntitiesRequestResource extends BaseResource {
   public Response createEntity(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
-      @Context Providers providers,
+      @Context ContextResolver<ODataProducer> producerResolver,
       @Context SecurityContext securityContext,
       @QueryParam("$format") String format,
       @QueryParam("$callback") String callback,
@@ -67,15 +68,14 @@ public class EntitiesRequestResource extends BaseResource {
     if (entitySetName.equals("mex") && httpHeaders.getMediaType() != null && httpHeaders.getMediaType().toString().startsWith("application/soap+xml"))
       throw new UnsupportedMediaTypeException("SOAP mex requests are not supported");
 
-    log("createEntity", "entitySetName", entitySetName);
-
-    ODataProducer producer = getODataProducer(providers);
+    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
 
     // the OData URI scheme makes it impossible to have unique @Paths that refer
     // to functions and entity sets
-    if (producer.getMetadata().findEdmFunctionImport(entitySetName) != null) {
+    if (producer.getMetadata().containsEdmFunctionImport(entitySetName)) {
       // functions that return collections of entities should support the
       // same set of query options as entity set queries so give them everything.
+      log("callFunction", "functionName", entitySetName);
 
       ODataHttpMethod callingMethod = ODataHttpMethod.POST;
       List<String> xheader = httpHeaders.getRequestHeader("X-HTTP-METHOD");
@@ -84,8 +84,10 @@ public class EntitiesRequestResource extends BaseResource {
       }
 
       QueryInfo query = QueryInfo.newBuilder().setCustomOptions(OptionsQueryParser.parseCustomOptions(uriInfo)).build();
-      return FunctionResource.callFunction(callingMethod, httpHeaders, uriInfo, securityContext, producer, entitySetName, format, callback, query);
+      return FunctionResource.callFunction(callingMethod, httpHeaders, uriInfo, securityContext, producer, entitySetName, format, callback, query, null, null, payload);
     }
+
+    log("createEntity", "entitySetName", entitySetName);
 
     // is this a new media resource?
     // check for HasStream
@@ -102,14 +104,22 @@ public class EntitiesRequestResource extends BaseResource {
         .aspect(uriInfo)
         .build();
 
-    if (Boolean.TRUE.equals(entitySet.getType().getHasStream())) { // getHasStream can return null
+    /*
+     * First check if we have a slug header present in the request if it is not 
+     * then treat it as a normal entity creation and not an MLE. 
+     * If slug header is present then we will treat the POST request as a MLE request. 
+     */
+    String slugHeader = httpHeaders.getRequestHeader("Slug") != null ? httpHeaders.getRequestHeader("Slug").get(0) : null;
+
+    if (entitySet.getType().getHasStream() != null && Boolean.TRUE.equals(entitySet.getType().getHasStream())
+        && slugHeader != null && !slugHeader.equals("")) { // getHasStream can return null
       // yes it is!
       return createMediaLinkEntry(httpHeaders, uriInfo, securityContext, producer, entitySet, payload, odataContext);
     }
 
     // also on the plus side we can now parse the stream directly off the wire....
     return createEntity(httpHeaders, uriInfo, securityContext, producer, entitySetName,
-        this.getRequestEntity(httpHeaders, uriInfo, payload, producer.getMetadata(), entitySetName, null), odataContext);
+        this.getRequestEntity(httpHeaders, uriInfo, payload, producer.getMetadata(), entitySetName, null), odataContext, null);
   }
 
   protected Response createEntity(
@@ -119,12 +129,17 @@ public class EntitiesRequestResource extends BaseResource {
       ODataProducer producer,
       String entitySetName,
       OEntity entity,
-      ODataContext odataContext) throws Exception {
+      ODataContext odataContext, List<MediaType> mediaTypeList) throws Exception {
 
     EntityResponse response = producer.createEntity(odataContext, entitySetName, entity);
+    FormatWriter<EntityResponse> writer = null;
+    if (mediaTypeList != null) {
+      writer = FormatWriterFactory.getFormatWriter(EntityResponse.class, mediaTypeList, null, null);
+    }
+    else {
+      writer = FormatWriterFactory.getFormatWriter(EntityResponse.class, httpHeaders.getAcceptableMediaTypes(), null, null);
+    }
 
-    FormatWriter<EntityResponse> writer = FormatWriterFactory
-        .getFormatWriter(EntityResponse.class, httpHeaders.getAcceptableMediaTypes(), null, null);
     StringWriter sw = new StringWriter();
     writer.write(uriInfo, sw, response);
 
@@ -161,14 +176,14 @@ public class EntitiesRequestResource extends BaseResource {
         producer,
         entitySet.getName(),
         mle,
-        odataContext);
+        odataContext, null);
   }
 
   @PUT
   public Response functionCallPut(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
-      @Context Providers providers,
+      @Context ContextResolver<ODataProducer> producerResolver,
       @Context SecurityContext securityContext,
       @QueryParam("$format") String format,
       @QueryParam("$callback") String callback,
@@ -178,11 +193,11 @@ public class EntitiesRequestResource extends BaseResource {
     Response response;
     log("functionCallDelete", "function", functionName);
 
-    ODataProducer producer = getODataProducer(providers);
+    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
 
     // the OData URI scheme makes it impossible to have unique @Paths that refer
     // to functions and entity sets
-    if (producer.getMetadata().findEdmFunctionImport(functionName) != null) {
+    if (producer.getMetadata().containsEdmFunctionImport(functionName)) {
       // functions that return collections of entities should support the
       // same set of query options as entity set queries so give them everything.
 
@@ -199,7 +214,7 @@ public class EntitiesRequestResource extends BaseResource {
   public Response functionCallDelete(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
-      @Context Providers providers,
+      @Context ContextResolver<ODataProducer> producerResolver,
       @Context SecurityContext securityContext,
       @QueryParam("$format") String format,
       @QueryParam("$callback") String callback,
@@ -209,11 +224,11 @@ public class EntitiesRequestResource extends BaseResource {
     Response response;
     log("functionCallDelete", "function", functionName);
 
-    ODataProducer producer = getODataProducer(providers);
+    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
 
     // the OData URI scheme makes it impossible to have unique @Paths that refer
     // to functions and entity sets
-    if (producer.getMetadata().findEdmFunctionImport(functionName) != null) {
+    if (producer.getMetadata().containsEdmFunctionImport(functionName)) {
       // functions that return collections of entities should support the
       // same set of query options as entity set queries so give them everything.
 
@@ -233,7 +248,7 @@ public class EntitiesRequestResource extends BaseResource {
   public Response getEntities(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
-      @Context Providers providers,
+      @Context ContextResolver<ODataProducer> producerResolver,
       @Context SecurityContext securityContext,
       @PathParam("entitySetName") String entitySetName,
       @QueryParam("$inlinecount") String inlineCount,
@@ -248,20 +263,7 @@ public class EntitiesRequestResource extends BaseResource {
       @QueryParam("$select") String select)
       throws Exception {
 
-    log("getEntities",
-        "entitySetName", entitySetName,
-        "inlineCount", inlineCount,
-        "top", top,
-        "skip", skip,
-        "filter", filter,
-        "orderBy", orderBy,
-        "format", format,
-        "callback", callback,
-        "skipToken", skipToken,
-        "expand", expand,
-        "select", select);
-
-    ODataProducer producer = getODataProducer(providers);
+    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
 
     return getEntitiesImpl(httpHeaders, uriInfo, securityContext, producer, entitySetName, false, inlineCount, top, skip,
         filter, orderBy, format, callback, skipToken, expand, select);
@@ -276,9 +278,10 @@ public class EntitiesRequestResource extends BaseResource {
   public Response getEntitiesCount(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
-      @Context Providers providers,
+      @Context ContextResolver<ODataProducer> producerResolver,
       @Context SecurityContext securityContext,
       @PathParam("entitySetName") String entitySetName,
+      @PathParam("count") String count,
       @QueryParam("$inlinecount") String inlineCount,
       @QueryParam("$top") String top,
       @QueryParam("$skip") String skip,
@@ -303,7 +306,7 @@ public class EntitiesRequestResource extends BaseResource {
         "expand", expand,
         "select", select);
 
-    ODataProducer producer = getODataProducer(providers);
+    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
 
     return getEntitiesImpl(httpHeaders, uriInfo, securityContext, producer, entitySetName, true, inlineCount, top, skip,
         filter, orderBy, format, callback, skipToken, expand, select);
@@ -347,11 +350,37 @@ public class EntitiesRequestResource extends BaseResource {
 
     // the OData URI scheme makes it impossible to have unique @Paths that refer
     // to functions and entity sets
-    if (producer.getMetadata().findEdmFunctionImport(entitySetName) != null) {
+    if (producer.getMetadata().containsEdmFunctionImport(entitySetName)) {
+
+      log("callFunction",
+          "functionName", entitySetName,
+          "inlineCount", inlineCount,
+          "top", top,
+          "skip", skip,
+          "filter", filter,
+          "orderBy", orderBy,
+          "format", format,
+          "callback", callback,
+          "skipToken", skipToken,
+          "expand", expand,
+          "select", select);
       // functions that return collections of entities should support the
       // same set of query options as entity set queries so give them everything.
       return FunctionResource.callFunction(ODataHttpMethod.GET, httpHeaders, uriInfo, securityContext, producer, entitySetName, format, callback, query);
     }
+
+    log("getEntities",
+        "entitySetName", entitySetName,
+        "inlineCount", inlineCount,
+        "top", top,
+        "skip", skip,
+        "filter", filter,
+        "orderBy", orderBy,
+        "format", format,
+        "callback", callback,
+        "skipToken", skipToken,
+        "expand", expand,
+        "select", select);
 
     Response response = null;
     if (isCount) {
@@ -359,8 +388,7 @@ public class EntitiesRequestResource extends BaseResource {
 
       String entity = Long.toString(countResponse.getCount());
 
-      // TODO remove this hack, check whether we are Version 2.0 compatible anyway
-      ODataVersion version = ODataVersion.V2;
+      ODataVersion version = ODataConstants.DATA_SERVICE_VERSION;
 
       response = Response
           .ok(entity, ODataConstants.TEXT_PLAIN_CHARSET_UTF8)
@@ -374,7 +402,6 @@ public class EntitiesRequestResource extends BaseResource {
         throw new NotFoundException(entitySetName);
       }
 
-      StringWriter sw = new StringWriter();
       FormatWriter<EntitiesResponse> fw =
           FormatWriterFactory.getFormatWriter(
               EntitiesResponse.class,
@@ -382,15 +409,18 @@ public class EntitiesRequestResource extends BaseResource {
               format,
               callback);
 
-      fw.write(uriInfo, sw, entitiesResponse);
-      String entity = sw.toString();
+      //Use the buffered response writer for setting the response using the charset based on the media type
+      BufferOrFileResponseWriter responseWriter = new BufferOrFileResponseWriter(fw.getContentType());
 
-      // TODO remove this hack, check whether we are Version 2.0 compatible anyway
-      ODataVersion version = MediaType.valueOf(fw.getContentType()).isCompatible(MediaType.APPLICATION_JSON_TYPE)
-          ? ODataVersion.V2 : ODataVersion.V2;
+      fw.write(uriInfo, responseWriter, entitiesResponse);
+
+      //Close the response writer and send the object to be written out
+      responseWriter.close();
+
+      ODataVersion version = ODataConstants.DATA_SERVICE_VERSION;
 
       response = Response
-          .ok(entity, fw.getContentType())
+          .ok(responseWriter.getResponseHolder(), fw.getContentType())
           .header(ODataConstants.Headers.DATA_SERVICE_VERSION, version.asString)
           .build();
     }
@@ -402,7 +432,7 @@ public class EntitiesRequestResource extends BaseResource {
   @Consumes(ODataBatchProvider.MULTIPART_MIXED)
   @Produces(ODataConstants.APPLICATION_ATOM_XML_CHARSET_UTF8)
   public Response processBatch(
-      @Context Providers providers,
+      @Context ContextResolver<ODataProducer> producerResolver,
       @Context HttpHeaders headers,
       @Context Request request,
       @Context SecurityContext securityContext,
@@ -426,7 +456,7 @@ public class EntitiesRequestResource extends BaseResource {
 
     batchResponse.append('\n');
 
-    ODataProducer producer = getODataProducer(providers);
+    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
 
     ODataContext odataContext = ODataContextImpl.builder()
         .aspect(headers)
@@ -446,18 +476,18 @@ public class EntitiesRequestResource extends BaseResource {
       case POST:
         response = this.createEntity(httpHeaders, uriInfo, securityContext, producer,
             entitySetName,
-            getRequestEntity(httpHeaders, uriInfo, entityString, producer.getMetadata(), entitySetName, null), odataContext);
+            getRequestEntity(httpHeaders, uriInfo, entityString, producer.getMetadata(), entitySetName, null), odataContext, null);
         break;
       case PUT:
-        response = er.updateEntity(httpHeaders, uriInfo, securityContext, providers,
+        response = er.updateEntity(httpHeaders, uriInfo, securityContext, producerResolver,
             entitySetName, entityId, entityString, odataContext);
         break;
       case MERGE:
-        response = er.mergeEntity(httpHeaders, uriInfo, providers, securityContext, entitySetName,
+        response = er.mergeEntity(httpHeaders, uriInfo, producerResolver, securityContext, entitySetName,
             entityId, entityString);
         break;
       case DELETE:
-        response = er.deleteEntity(httpHeaders, uriInfo, providers, securityContext, format, callback, entitySetName, entityId);
+        response = er.deleteEntity(httpHeaders, uriInfo, producerResolver, securityContext, format, callback, entitySetName, entityId);
         break;
       case GET:
         throw new UnsupportedOperationException("Not supported yet.");
@@ -482,6 +512,20 @@ public class EntitiesRequestResource extends BaseResource {
             ODataConstants.Headers.DATA_SERVICE_VERSION,
             ODataConstants.DATA_SERVICE_VERSION_HEADER)
         .entity(batchResponse.toString()).build();
+  }
+
+  @Path("{navProp: [^$/()]+?}")
+  public BaseResource getNavProperty(
+      @Context ContextResolver<ODataProducer> producerResolver,
+      @PathParam("entitySetName") String entitySetName,
+      @PathParam("navProp") String functionName) {
+
+    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
+    if (producer.getMetadata().containsEdmFunctionImport(functionName)) {
+      return new FunctionResource();
+    } else {
+      throw new NotFoundException(functionName);
+    }
   }
 
   private static void log(String operation, Object... namedArgs) {

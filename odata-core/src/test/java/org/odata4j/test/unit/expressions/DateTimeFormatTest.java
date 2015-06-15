@@ -185,7 +185,8 @@ public class DateTimeFormatTest {
   @Test
   public void testFormatDateTimeyyyyMMddHHmm() {
     LocalDateTime dt = new LocalDateTime(2010, 12, 20, 17, 34);
-    Assert.assertEquals("2010-12-20T17:34", InternalUtil.formatDateTimeForXml(dt));
+    String v = InternalUtil.formatDateTimeForXml(dt);
+    Assert.assertEquals("2010-12-20T17:34:00", InternalUtil.formatDateTimeForXml(dt));
   }
 
   @Test

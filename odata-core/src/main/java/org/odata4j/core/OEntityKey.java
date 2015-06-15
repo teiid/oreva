@@ -149,6 +149,9 @@ public class OEntityKey {
         throw new IllegalArgumentException("bad keyString: " + keyString);
       String valueString = nv.length == 1 ? nv[0] : nv[1];
       try {
+        // the key might be url encoded if it comes from delete request etc as part DELETE request, decode it here.
+        // Parser will do decoding if there is entity in POST payload.
+        //valueString = ConversionUtil.decodeString(valueString);
         CommonExpression expr = ExpressionParser.parse(valueString);
         LiteralExpression literal = (LiteralExpression) expr;
         Object value = Expression.literalValue(literal);

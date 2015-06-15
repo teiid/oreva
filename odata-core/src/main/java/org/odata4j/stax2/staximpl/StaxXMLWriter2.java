@@ -11,6 +11,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 
 import org.core4j.Enumerable;
+import org.odata4j.core.ODataConstants;
 import org.odata4j.core.ODataConstants.Charsets;
 import org.odata4j.core.Throwables;
 import org.odata4j.stax2.QName2;
@@ -107,6 +108,28 @@ public class StaxXMLWriter2 implements XMLWriter2 {
       XMLEvent event = eventFactory.createCharacters(content);
       eventWriter.add(event);
 
+    } catch (XMLStreamException e) {
+      // don't throw an exception; instead write a message as part of data and continue.
+      this.writeErrorMessageAsCData(e.getMessage());
+    }
+  }
+
+  /**
+   * In case we encounter any invalid characters in the XML, then print error message as CDATA so that it is highlighted at client side.<br><br>
+   * 
+   * If we still have issue, we will throw the exception.
+   * 
+   * @param content
+   */
+  @Override
+  public void writeErrorMessageAsCData(String message) {
+    try {
+      StringBuilder errorMessageBuilder = new StringBuilder(ODataConstants.ERROR_TEXT);
+      if (message != null) {
+        errorMessageBuilder.append(message);
+      }
+      XMLEvent event = eventFactory.createCData(errorMessageBuilder.toString());
+      eventWriter.add(event);
     } catch (XMLStreamException e) {
       throw Throwables.propagate(e);
     }

@@ -194,4 +194,14 @@ public class ODataClientRequest {
   public ODataClientRequest method(String method) {
     return new ODataClientRequest(method, url, headers, queryParams, payload);
   }
+  
+  /**
+   * Sets the payload.
+   *
+   * @param payload  the payload
+   * @return the request builder
+   */
+  public ODataClientRequest payload(Object payload) {
+    return new ODataClientRequest(method, url, headers, queryParams, payload);
+  }  
 }

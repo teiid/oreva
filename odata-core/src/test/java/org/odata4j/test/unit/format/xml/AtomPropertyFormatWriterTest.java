@@ -21,7 +21,7 @@ public class AtomPropertyFormatWriterTest extends AbstractPropertyFormatWriterTe
   @Test
   public void dateTime() throws Exception {
     formatWriter.write(null, stringWriter, Responses.property(DATETIME));
-    assertThat(stringWriter.toString(), allOf(containsString("m:type=\"Edm.DateTime\""), containsString(">2005-04-03T01:02<")));
+    assertThat(stringWriter.toString(), allOf(containsString("m:type=\"Edm.DateTime\""), containsString(">2005-04-03T01:02:00<")));
   }
 
   @Test

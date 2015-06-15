@@ -56,6 +56,8 @@ public class JsonTypeConverter {
       return OProperties.datetimeOffset(name, InternalUtil.parseDateTimeOffsetFromJson(value));
     else if (EdmSimpleType.TIME.equals(type))
       return OProperties.time(name, InternalUtil.parseTime(value));
+    else if (EdmSimpleType.STREAM.equals(type))
+      return OProperties.binary(name, new Base64().decode(value));
 
     throw new UnsupportedOperationException("type:" + type);
   }

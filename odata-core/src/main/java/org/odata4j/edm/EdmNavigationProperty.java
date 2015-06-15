@@ -26,16 +26,19 @@ public class EdmNavigationProperty extends EdmPropertyBase {
   private final EdmAssociation relationship;
   private final EdmAssociationEnd fromRole;
   private final EdmAssociationEnd toRole;
+  private final boolean containsTarget;
 
   private EdmNavigationProperty(EdmDocumentation documentation, ImmutableList<EdmAnnotation<?>> annotations, ImmutableList<EdmAnnotation<?>> annotElements,
       String name,
       EdmAssociation relationship,
       EdmAssociationEnd fromRole,
-      EdmAssociationEnd toRole) {
+      EdmAssociationEnd toRole,
+      boolean containsTarget) {
     super(documentation, annotations, annotElements, name);
     this.relationship = relationship;
     this.fromRole = fromRole;
     this.toRole = toRole;
+    this.containsTarget = containsTarget;
   }
 
   public EdmAssociation getRelationship() {
@@ -49,6 +52,11 @@ public class EdmNavigationProperty extends EdmPropertyBase {
   public EdmAssociationEnd getToRole() {
     return toRole;
   }
+  
+  public boolean getCotainsTarget() {
+    return containsTarget;
+  }
+
 
   @Override
   public String toString() {
@@ -72,6 +80,8 @@ public class EdmNavigationProperty extends EdmPropertyBase {
     private String fromRoleName;
     private EdmAssociationEnd.Builder toRole;
     private String toRoleName;
+    //A containment NavigationProperty is a NavigationProperty that has a ContainsTarget attribute set to "true".
+    private boolean containsTarget = false;
 
     private Builder(String name) {
       super(name);
@@ -95,10 +105,15 @@ public class EdmNavigationProperty extends EdmPropertyBase {
       this.toRole = toRole;
       return this;
     }
+    
+    public Builder setContainsTarget(boolean containsTarget) {
+      this.containsTarget = containsTarget;
+      return this;
+    }
 
     public EdmNavigationProperty build() {
       return new EdmNavigationProperty(getDocumentation(), ImmutableList.copyOf(getAnnotations()),
-          ImmutableList.copyOf(getAnnotationElements()), getName(), relationship.build(), fromRole.build(), toRole.build());
+          ImmutableList.copyOf(getAnnotationElements()), getName(), relationship.build(), fromRole.build(), toRole.build(), containsTarget);
     }
 
     public String getRelationshipName() {

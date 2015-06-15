@@ -41,6 +41,7 @@ import org.odata4j.exceptions.BadRequestException;
 import org.odata4j.exceptions.NotFoundException;
 import org.odata4j.exceptions.NotImplementedException;
 import org.odata4j.producer.BaseResponse;
+import org.odata4j.producer.ContextStream;
 import org.odata4j.producer.CountResponse;
 import org.odata4j.producer.EntitiesResponse;
 import org.odata4j.producer.EntityIdResponse;
@@ -509,5 +510,53 @@ public class CustomProducer implements ODataProducer {
       String id = mle.getEntityKey().asSingleValue().toString();
       return getMLE(mle.getEntitySet(), id, mediaResources.get(id));
     }
+  }
+
+  @Override
+  public void beginChangeSetBoundary() {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void commitChangeSetBoundary() {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void rollbackChangeSetBoundary() {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public EntityResponse createResponseForBatchPostOperation(String entitySetName, OEntity entity) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public InputStream getInputStreamForMediaLink(String entitySetName, OEntityKey entityKey, EntityQueryInfo queryInfo) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public void updateEntityWithStream(String entitySetName, OEntity entity) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public ContextStream getInputStreamForNamedStream(String entitySetName, OEntityKey entityKey, String columnName, QueryInfo queryInfo) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public void updateEntityWithNamedStream(String entitySetName, OEntityKey entityKey, String columnName, ContextStream streamContext) {
+    // TODO Auto-generated method stub
+    
   }
 }

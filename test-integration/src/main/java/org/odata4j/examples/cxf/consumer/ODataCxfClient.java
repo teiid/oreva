@@ -9,6 +9,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.List;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -35,6 +36,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.core4j.Enumerable;
 import org.odata4j.consumer.AbstractODataClient;
+import org.odata4j.consumer.ODataClientBatchResponse;
 import org.odata4j.consumer.ODataClientRequest;
 import org.odata4j.consumer.ODataClientResponse;
 import org.odata4j.consumer.behaviors.OClientBehavior;
@@ -252,4 +254,18 @@ public class ODataCxfClient extends AbstractODataClient {
       return null;
     }
   }
+
+@Override
+public List<ODataClientBatchResponse> batchRequest(FormatType formatType,
+		ODataClientRequest batchRequest, List<?> childRequests)
+		throws ODataProducerException {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+@Override
+public Reader getFeedReader(String payload) {
+	// TODO Auto-generated method stub
+	return null;
+}
 }

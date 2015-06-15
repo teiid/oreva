@@ -7,7 +7,8 @@ public enum ODataVersion {
 
   // order of definition is important
   V1("1.0"),
-  V2("2.0");
+  V2("2.0"),
+  V3("3.0");
 
   /**
    * 1.0 or 2.0
@@ -29,6 +30,8 @@ public enum ODataVersion {
       return V1;
     else if (V2.asString.equals(str)) {
       return V2;
+    } else if (V3.asString.equals(str)) {
+        return V3;
     } else {
       throw new IllegalArgumentException("Unknown ODataVersion " + str);
     }

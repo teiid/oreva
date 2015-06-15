@@ -4,14 +4,12 @@ import java.io.StringWriter;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import javax.ws.rs.ext.Providers;
 
 import org.odata4j.core.ODataConstants;
 import org.odata4j.core.OError;
@@ -35,9 +33,8 @@ import org.odata4j.producer.Responses;
 @Provider
 public class ExceptionMappingProvider implements ExceptionMapper<RuntimeException> {
 
-  @Context 
-  protected Providers providers;
-  
+  @Context
+  protected ContextResolver<ODataProducer> producerResolver;
   @Context
   protected UriInfo uriInfo;
   @Context
@@ -50,7 +47,7 @@ public class ExceptionMappingProvider implements ExceptionMapper<RuntimeExceptio
     else
       exception = new ServerErrorException(e);
 
-    ErrorResponseExtension errorResponseExtension = getODataProducer(providers).findExtension(ErrorResponseExtension.class);
+    ErrorResponseExtension errorResponseExtension = producerResolver.getContext(ODataProducer.class).findExtension(ErrorResponseExtension.class);
     boolean includeInnerError = errorResponseExtension != null && errorResponseExtension.returnInnerError(httpHeaders, uriInfo, exception);
 
     FormatWriter<ErrorResponse> fw = FormatWriterFactory.getFormatWriter(ErrorResponse.class, httpHeaders.getAcceptableMediaTypes(),
@@ -79,10 +76,4 @@ public class ExceptionMappingProvider implements ExceptionMapper<RuntimeExceptio
   private String getCallbackParameter() {
     return uriInfo.getQueryParameters().getFirst("$callback");
   }
-  
-  static ODataProducer getODataProducer(Providers providers) {
-    ContextResolver<ODataProducer> producerResolver = providers.getContextResolver(ODataProducer.class,MediaType.WILDCARD_TYPE);
-    return producerResolver.getContext(ODataProducer.class);
-  }
-  
 }

@@ -27,7 +27,7 @@ public class JsonSingleLinksFormatWriterTest {
 
   @BeforeClass
   public static void setupClass() throws Exception {
-    formatWriter = FormatWriterFactory.getFormatWriter(SingleLinks.class, null, FormatType.JSON.toString(), null);
+    formatWriter = FormatWriterFactory.getFormatWriter(SingleLinks.class, null, FormatType.JSONVERBOSE.toString(), null);
     entityIds = new ArrayList<OEntityId>();
     entityIds.add(OEntityIds.create("test", "a"));
     entityIds.add(OEntityIds.create("test", "b"));

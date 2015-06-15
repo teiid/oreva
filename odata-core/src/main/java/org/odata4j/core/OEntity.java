@@ -1,5 +1,6 @@
 package org.odata4j.core;
 
+import java.io.InputStream;
 import java.util.List;
 
 import org.odata4j.edm.EdmEntitySet;
@@ -55,4 +56,31 @@ public interface OEntity extends OEntityId, OStructuralObject, OExtensible<OEnti
    */
   <T extends OLink> T getLink(String title, Class<T> linkClass);
 
+  /**
+   * Gets the media link.
+   *
+   * @return the media link
+   */
+  InputStream getMediaLinkStream();
+
+  /**
+   * Gets the media type for stream.
+   *
+   * @return the media type for stream
+   */
+  String getMediaTypeForStream();
+
+  /**
+   * Sets the media type for stream.
+   *
+   * @param mediaTypeForStream the new media type for stream
+   */
+  void setMediaTypeForStream(String mediaTypeForStream);
+
+  /**
+   * Sets the media link stream.
+   *
+   * @param inStream the new media link stream
+   */
+  void setMediaLinkStream(InputStream inStream);
 }
