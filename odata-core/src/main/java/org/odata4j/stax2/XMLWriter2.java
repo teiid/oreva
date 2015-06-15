@@ -22,4 +22,6 @@ public interface XMLWriter2 {
 
   void endDocument();
 
+  void writeErrorMessageAsCData(String message);
+
 }

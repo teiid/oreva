@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -33,6 +34,7 @@ import org.odata4j.core.ORelatedEntitiesLinkInline;
 import org.odata4j.core.ORelatedEntityLink;
 import org.odata4j.core.Throwables;
 import org.odata4j.edm.EdmEntitySet;
+import org.odata4j.urlencoder.ConversionUtil;
 
 public class InternalUtil {
 
@@ -67,6 +69,8 @@ public class InternalUtil {
   private static final String DATETIME_JSON_SUFFIX = ")\\/\"";
   private static final String DATETIME_JSON_PREFIX = "\"\\/Date(";
 
+  private static final DecimalFormat MILLIS = new DecimalFormat(".###", AndroidCompat.DecimalFormatSymbols_getInstance(Locale.US));
+
   public static LocalDateTime parseDateTimeFromXml(String value) {
     value = normalizeXmlValue(value);
     Matcher matcher = DATETIME_XML_PATTERN.matcher(value);
@@ -89,6 +93,16 @@ public class InternalUtil {
         return DATETIME_WITH_MILLIS_XML.parseDateTime(dateTime + seconds + nanoSeconds).toLocalDateTime();
 
       return adjustMillis(DATETIME_WITH_MILLIS_XML.parseDateTime(dateTime + seconds + nanoSeconds.substring(0, 4)), nanoSeconds).toLocalDateTime();
+
+    } else {
+      // check if the value is in offset format
+      try {
+        DateTime dt = parseDateTimeOffsetFromXml(value);
+        return dt.toLocalDateTime();
+
+      } catch (IllegalArgumentException e) {
+        // ignore it, throw it is own exception
+      }
     }
     throw new IllegalArgumentException("Illegal datetime format " + value);
   }
@@ -173,10 +187,14 @@ public class InternalUtil {
 
     if (localDateTime.getMillisOfSecond() != 0)
       return localDateTime.toString(DATETIME_WITH_MILLIS_XML);
-    else if (localDateTime.getSecondOfMinute() != 0)
+    /*else if (localDateTime.getSecondOfMinute() != 0)
       return localDateTime.toString(DATETIME_WITH_SECONDS_XML);
     else
-      return localDateTime.toString(DATETIME_XML);
+      return localDateTime.toString(DATETIME_XML);*/
+
+    // Always return datetime with seconds even if it is 0 
+    // Fix for exception on .net consumer 
+    return localDateTime.toString(DATETIME_WITH_SECONDS_XML);
   }
 
   public static String formatDateTimeOffsetForXml(DateTime dateTime) {
@@ -330,7 +348,8 @@ public class InternalUtil {
   }
 
   public static String getEntityRelId(EdmEntitySet entitySet, OEntityKey entityKey) {
-    String key = entityKey.toKeyString();
+    //encode the key
+    String key = ConversionUtil.encodeString(entityKey.toKeyString());
     return entitySet.getName() + key;
   }
 
@@ -360,5 +379,23 @@ public class InternalUtil {
       outStream.write(buf, 0, n);
     }
     outStream.flush();
+  }
+
+  /**
+   * Returns the system property value for the passed key.
+   * 
+   * @param key
+   *            the key
+   * @return the system property value
+   */
+  public static String getSystemPropertyValue(String key) {
+    String value = null;
+
+    value = System.getProperty(key);
+    if (value == null) {
+      value = System.getenv(key);
+    }
+
+    return value;
   }
 }

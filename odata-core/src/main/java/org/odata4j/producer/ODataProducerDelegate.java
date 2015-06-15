@@ -109,4 +109,24 @@ public abstract class ODataProducerDelegate implements Delegate<ODataProducer>, 
   public <TExtension extends OExtension<ODataProducer>> TExtension findExtension(Class<TExtension> clazz) {
     return getDelegate().findExtension(clazz);
   }
+
+  @Override
+  public void beginChangeSetBoundary() {
+    getDelegate().beginChangeSetBoundary();
+  }
+
+  @Override
+  public void commitChangeSetBoundary() {
+    getDelegate().commitChangeSetBoundary();
+  }
+
+  @Override
+  public void rollbackChangeSetBoundary() {
+    getDelegate().rollbackChangeSetBoundary();
+  }
+
+  @Override
+  public EntityResponse createResponseForBatchPostOperation(String entitySetName, OEntity entity) {
+    return getDelegate().createResponseForBatchPostOperation(entitySetName, entity);  
+  }
 }

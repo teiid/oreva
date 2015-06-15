@@ -45,6 +45,7 @@ public class AtomServiceDocumentFormatWriter extends XmlFormatWriter implements 
     }
 
     writer.endElement("workspace");
+    writer.endElement("service");
     writer.endDocument();
   }
 

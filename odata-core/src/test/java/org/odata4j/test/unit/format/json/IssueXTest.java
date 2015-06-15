@@ -130,7 +130,7 @@ public class IssueXTest {
   // TODO rework
   @Test
   public void issueX1() {
-    FormatParser<?> fp = FormatParserFactory.getParser(OComplexObject.class, FormatType.JSON, null);
+    FormatParser<?> fp = FormatParserFactory.getParser(OComplexObject.class, FormatType.JSONVERBOSE, null);
 
     JsonStartPropertyEvent e = mock(JsonStartPropertyEvent.class);
     when(e.getName()).thenReturn("blat");

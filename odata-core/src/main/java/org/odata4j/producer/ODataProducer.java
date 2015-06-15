@@ -1,5 +1,6 @@
 package org.odata4j.producer;
 
+import java.io.InputStream;
 import java.util.Map;
 
 import org.odata4j.core.OEntity;
@@ -207,4 +208,92 @@ public interface ODataProducer extends OExtensible<ODataProducer> {
    *        A ref type or collection of ref types.</pre>
    */
   BaseResponse callFunction(ODataContext context, EdmFunctionImport name, Map<String, OFunctionParameter> params, QueryInfo queryInfo);
+  
+  
+  /**
+   * Start a new changeset boundary. <br>
+   * <br>
+   * When beginChangeSetBoundary() is called, user should start a new
+   * transaction. then close the transaction either when commit/rollback
+   * function got called.
+   */
+  public void beginChangeSetBoundary();
+
+  /**
+   * Finish the changeset boundary. <br>
+   * <br>
+   * 
+   * All the operation within the same change set will be called in the same
+   * thread. But the thread might be from a thread pool. Make sure to clean up
+   * after the change set finished.
+   */
+  public void commitChangeSetBoundary();
+
+  /**
+   * Roll back the changes<br>
+   * <br>
+   * 
+   * All the operation within the same change set will be called in the same
+   * thread. But the thread might be from a thread pool. Make sure to clean up
+   * after the change set finished.
+   */
+  public void rollbackChangeSetBoundary();
+
+  /**
+   * Create the Response for the Batch Create operation.<br>
+   * <br>
+   * 
+   * Batch request with create operation, fails.<br>
+   * because when it tries to read back the inserted record, it will not find the entity<br>
+   * since we do commit only after the end of change set.<br>
+   * so we build the response after commit change set.
+   *
+   * @param entitySetName the entity set name
+   * @param entity the entity
+   * @return the entity response
+   */
+  public EntityResponse createResponseForBatchPostOperation(String entitySetName, OEntity entity);
+
+  /**
+   * This API will check for the media associated with an entity and
+   * provide an InputStream to the media.
+   *
+   * @param entitySetName the entity set name
+   * @param entityKey the entity
+   * @param queryInfo  the additional constraints to apply to the entities
+   * @return the response containing stream of BLOB
+   */
+  public InputStream getInputStreamForMediaLink(String entitySetName, OEntityKey entityKey, EntityQueryInfo queryInfo);
+
+  /**
+    * Modifies an existing entity using update semantics.
+    *
+    * @param entitySetName  the entity-set name
+    * @param entity  the entity modifications sent from the client
+    *
+    * @see <a href="http://www.odata.org/developers/protocols/operations#UpdatingEntries">[odata.org] Updating Entries</a>
+    */
+  void updateEntityWithStream(String entitySetName, OEntity entity);
+
+  /**
+   * This API will check for the media associated with an entity and
+   * provide an InputStream to the media.
+   *
+   * @param entitySetName the entity set name
+   * @param entityKey the entity
+   * @param columnName the named stream column name
+   * @param queryInfo  the additional constraints to apply to the entities
+   * @return the response containing stream of BLOB
+   */
+  public ContextStream getInputStreamForNamedStream(String entitySetName, OEntityKey entityKey, String columnName, QueryInfo queryInfo);
+  
+  /**
+   * To update/create the entity's stream column.
+   * @param entitySetName the entity set name.
+   * @param entityKey the key of the entity.
+   * @param columnName the named stream column.
+   * @param stream the input stream to be copied.
+   */
+  void updateEntityWithNamedStream(String entitySetName, OEntityKey entityKey, String columnName, ContextStream streamContext);
+  
 }

@@ -8,7 +8,7 @@ public class JsonErrorFormatWriterTest extends AbstractErrorFormatWriterTest {
 
   @BeforeClass
   public static void setupClass() throws Exception {
-    createFormatWriter(FormatType.JSON);
+    createFormatWriter(FormatType.JSONVERBOSE);
   }
 
   @Override

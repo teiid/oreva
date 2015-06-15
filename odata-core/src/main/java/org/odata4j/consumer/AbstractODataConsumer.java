@@ -1,7 +1,13 @@
 package org.odata4j.consumer;
 
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.core4j.Enumerable;
 import org.odata4j.core.EntitySetInfo;
+import org.odata4j.core.OBatchRequest;
+import org.odata4j.core.OChangeSetRequest;
 import org.odata4j.core.OCountRequest;
 import org.odata4j.core.OCreateRequest;
 import org.odata4j.core.OEntity;
@@ -11,23 +17,32 @@ import org.odata4j.core.OEntityId;
 import org.odata4j.core.OEntityKey;
 import org.odata4j.core.OEntityRequest;
 import org.odata4j.core.OFunctionRequest;
+import org.odata4j.core.OGetNamedStreamRequest;
+import org.odata4j.core.OModifyLinkRequest;
 import org.odata4j.core.OModifyRequest;
 import org.odata4j.core.OObject;
 import org.odata4j.core.OQueryRequest;
 import org.odata4j.core.ORelatedEntitiesLink;
 import org.odata4j.core.ORelatedEntityLink;
+import org.odata4j.core.OUpdateNamedStreamRequest;
 import org.odata4j.edm.EdmDataServices;
 import org.odata4j.edm.EdmEntitySet;
+import org.odata4j.edm.EdmEntityType;
+import org.odata4j.edm.EdmProperty;
 import org.odata4j.exceptions.ODataProducerException;
 import org.odata4j.internal.EdmDataServicesDecorator;
+import org.odata4j.internal.FeedCustomizationMapping;
 
 /**
  * Useful base class for {@link ODataConsumer} implementations with common functionality.
  */
 public abstract class AbstractODataConsumer implements ODataConsumer {
 
-  private final String serviceRootUri;
+  private static final FeedCustomizationMapping EMPTY_MAPPING = new FeedCustomizationMapping();
+
+  private String serviceRootUri;
   private EdmDataServices cachedMetadata;
+  private final Map<String, FeedCustomizationMapping> cachedMappings = new HashMap<String, FeedCustomizationMapping>();
 
   protected AbstractODataConsumer(String serviceRootUri) {
     if (!serviceRootUri.endsWith("/"))
@@ -61,7 +76,8 @@ public abstract class AbstractODataConsumer implements ODataConsumer {
   }
 
   public <T> OQueryRequest<T> getEntities(Class<T> entityType, String entitySetHref) {
-    return new ConsumerQueryEntitiesRequest<T>(getClient(), entityType, getServiceRootUri(), getMetadata(), entitySetHref);
+    FeedCustomizationMapping mapping = getFeedCustomizationMapping(entitySetHref);
+    return new ConsumerQueryEntitiesRequest<T>(getClient(), entityType, getServiceRootUri(), getMetadata(), entitySetHref, mapping);
   }
 
   public OEntityGetRequest<OEntity> getEntity(ORelatedEntityLink link) {
@@ -86,7 +102,8 @@ public abstract class AbstractODataConsumer implements ODataConsumer {
   }
 
   public <T> OEntityGetRequest<T> getEntity(Class<T> entityType, String entitySetName, OEntityKey key) {
-    return new ConsumerGetEntityRequest<T>(getClient(), entityType, getServiceRootUri(), getMetadata(), entitySetName, OEntityKey.create(key));
+    FeedCustomizationMapping mapping = getFeedCustomizationMapping(entitySetName);
+    return new ConsumerGetEntityRequest<T>(getClient(), entityType, getServiceRootUri(), getMetadata(), entitySetName, OEntityKey.create(key), mapping);
   }
 
   public OQueryRequest<OEntityId> getLinks(OEntityId sourceEntity, String targetNavProp) {
@@ -106,7 +123,8 @@ public abstract class AbstractODataConsumer implements ODataConsumer {
   }
 
   public OCreateRequest<OEntity> createEntity(String entitySetName) {
-    return new ConsumerCreateEntityRequest<OEntity>(getClient(), getServiceRootUri(), getMetadata(), entitySetName);
+    FeedCustomizationMapping mapping = getFeedCustomizationMapping(entitySetName);
+    return new ConsumerCreateEntityRequest<OEntity>(getClient(), getServiceRootUri(), getMetadata(), entitySetName, mapping);
   }
 
   public OModifyRequest<OEntity> updateEntity(OEntity entity) {
@@ -150,7 +168,23 @@ public abstract class AbstractODataConsumer implements ODataConsumer {
   public OCountRequest getEntitiesCount(String entitySetName) {
     return new ConsumerCountRequest(getClient(), getServiceRootUri()).entitySetName(entitySetName);
   }
+  
+  public OBatchRequest batchRequest() {
+    return new ConsumerBatchRequest(getClient(), getServiceRootUri());
+  }
 
+  public OChangeSetRequest changeSetRequest() {
+    return new ConsumerChangeSetRequest(getClient());
+  }
+  
+  public OGetNamedStreamRequest getNamedStream(OEntity entity, String name){
+    return new ConsumerGetNamedStreamRequest(getClient(), getServiceRootUri(), getMetadata(), entity, name);
+  }
+
+  public OUpdateNamedStreamRequest updateNamedStream(OEntity entity, String name, InputStream is) {
+    return new ConsumerUpdateNamedStreamRequest(getClient(), getServiceRootUri(), getMetadata(), entity, name, is);
+  }
+  
   protected abstract ODataClient getClient();
 
   private static class ParsedHref {
@@ -213,6 +247,30 @@ public abstract class AbstractODataConsumer implements ODataConsumer {
       }
       return rt;
     }
+  }
+
+  private FeedCustomizationMapping getFeedCustomizationMapping(String entitySetName) {
+    if (!cachedMappings.containsKey(entitySetName)) {
+      FeedCustomizationMapping rt = new FeedCustomizationMapping();
+      EdmDataServices metadata = getMetadata();
+      if (metadata != null) {
+        EdmEntitySet ees = metadata.findEdmEntitySet(entitySetName);
+        if (ees == null) {
+          rt = EMPTY_MAPPING;
+        } else {
+          EdmEntityType eet = ees.getType();
+          for (EdmProperty ep : eet.getProperties()) {
+            if ("SyndicationTitle".equals(ep.getFcTargetPath()) && "false".equals(ep.getFcKeepInContent()))
+              rt.titlePropName = ep.getName();
+            if ("SyndicationSummary".equals(ep.getFcTargetPath()) && "false".equals(ep.getFcKeepInContent()))
+              rt.summaryPropName = ep.getName();
+          }
+        }
+      }
+      cachedMappings.put(entitySetName, rt);
+    }
+    FeedCustomizationMapping mapping = cachedMappings.get(entitySetName);
+    return mapping == null || mapping == EMPTY_MAPPING ? null : mapping;
   }
 
 }

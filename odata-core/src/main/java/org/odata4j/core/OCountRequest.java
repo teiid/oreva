@@ -5,7 +5,7 @@ import org.odata4j.exceptions.ODataProducerException;
 /**
  * A consumer-side count-request builder. Call {@link #execute()} to issue the request.
  */
-public interface OCountRequest {
+public interface OCountRequest extends OBatchSupport {
 
   /**
    * Sets the name of the entity-set to count.

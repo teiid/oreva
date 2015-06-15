@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.core4j.Enumerable;
 import org.core4j.Func1;
@@ -45,12 +44,9 @@ import org.odata4j.stax2.XMLEventReader2;
 
 public class EdmxFormatParser extends XmlFormatParser {
 
-  private static final Set<String> NON_USER_NAMESPACES = Enumerable.create(
-      NS_METADATA, NS_DATASERVICES,
-      NS_EDM2006, NS_EDM2007, NS_EDM2008_1, NS_EDM2008_9, NS_EDM2008_9, NS_EDM2009_8, NS_EDM2009_11,
-      NS_EDMX, NS_EDMANNOTATION).toSet();
-
   private final EdmDataServices.Builder dataServices = EdmDataServices.newBuilder();
+  String[] namespaces = { NS_METADATA, NS_DATASERVICES, NS_EDM2006, NS_EDM2007, NS_EDM2008_1, NS_EDM2008_9,
+      NS_EDM2009_8, NS_EDM2009_11, NS_EDMX, NS_EDMANNOTATION };
 
   public EdmxFormatParser() {}
 
@@ -211,6 +207,9 @@ public class EdmxFormatParser extends XmlFormatParser {
                   .setEntitySet(ees)
                   .setReturnType(typeBuilder)
                   .setHttpMethod(tmpEfi.getHttpMethod())
+                  .setBindable(tmpEfi.isBindable())
+                  .setSideEffecting(tmpEfi.isSideEffecting())
+                  .setAlwaysBindable(tmpEfi.isAlwaysBindable())
                   .addParameters(tmpEfi.getParameters())
                   .setAnnotationElements(tmpEfi.getAnnotationElements())
                   .setAnnotations(tmpEfi.getAnnotations()));
@@ -365,7 +364,14 @@ public class EdmxFormatParser extends XmlFormatParser {
       returnType = returnType.substring(11, returnType.length() - 1);
     }
     String httpMethod = getAttributeValueIfExists(functionImportElement, new QName2(NS_METADATA, "HttpMethod"));
-
+    String bindableS = getAttributeValueIfExists(functionImportElement, "IsBindable");
+    String sideEffectingS = getAttributeValueIfExists(functionImportElement, "IsSideEffecting");
+    String alwaysBindableS = getAttributeValueIfExists(functionImportElement, new QName2(NS_METADATA, "IsAlwaysBindable"));
+    
+    boolean bindable = bindableS == null ? false : "true".equalsIgnoreCase(bindableS);
+    boolean sideEffecting = sideEffectingS == null ? true : "true".equalsIgnoreCase(sideEffectingS);
+    boolean alwaysBindable = alwaysBindableS == null ? true : "true".equalsIgnoreCase(alwaysBindableS);
+    
     List<EdmFunctionParameter.Builder> parameters = new ArrayList<EdmFunctionParameter.Builder>();
 
     while (reader.hasNext()) {
@@ -374,6 +380,9 @@ public class EdmxFormatParser extends XmlFormatParser {
         if (isElement(event, EDM2006_PARAMETER, EDM2007_PARAMETER, EDM2008_1_PARAMETER, EDM2008_9_PARAMETER, EDM2009_8_PARAMETER, EDM2009_11_PARAMETER)) {
           StartElement2 paramStartElement = event.asStartElement();
           EdmFunctionParameter.Builder functionParameter = parseEdmFunctionParameter(reader, paramStartElement);
+          if (parameters.size() == 0 && bindable){
+            functionParameter.setBound(true);
+          }
           parameters.add(functionParameter);
         }
         else {
@@ -384,7 +393,10 @@ public class EdmxFormatParser extends XmlFormatParser {
         }
       }
       if (isEndElement(event, functionImportElement.getName())) {
-        return EdmFunctionImport.newBuilder().setName(name).setEntitySetName(entitySet).setReturnTypeName(returnType).setIsCollection(isCollection).setHttpMethod(httpMethod)
+        return EdmFunctionImport.newBuilder().setName(name).setEntitySetName(entitySet).setReturnTypeName(returnType).setIsCollection(isCollection)
+        	.setHttpMethod(httpMethod).setBindable(bindable)
+        	.setSideEffecting(sideEffecting)
+        	.setAlwaysBindable(alwaysBindable)
             .addParameters(parameters).setAnnotations(getAnnotations(functionImportElement))
             .setAnnotationElements(annotElements);
       }
@@ -772,6 +784,11 @@ public class EdmxFormatParser extends XmlFormatParser {
     String relationshipName = navPropStartElement.getAttributeByName("Relationship").getValue();
     String fromRoleName = navPropStartElement.getAttributeByName("FromRole").getValue();
     String toRoleName = navPropStartElement.getAttributeByName("ToRole").getValue();
+    Attribute2 containsTargetAttr = navPropStartElement.getAttributeByName("ContainsTarget");
+    boolean containsTarget = false;
+    if (containsTargetAttr != null) {
+      containsTarget = Boolean.parseBoolean(containsTargetAttr.getValue());
+    }
     while (reader.hasNext()) {
       event = reader.nextEvent();
       if (event.isStartElement()) {
@@ -785,12 +802,14 @@ public class EdmxFormatParser extends XmlFormatParser {
             .setRelationshipName(relationshipName)
             .setFromToName(fromRoleName, toRoleName)
             .setAnnotations(getAnnotations(navPropStartElement))
-            .setAnnotationElements(annotElements);
+            .setAnnotationElements(annotElements)
+            .setContainsTarget(containsTarget);
       }
     }
     throw new UnsupportedOperationException();
   }
 
+  
   protected boolean isExtensionNamespace(String namespaceUri) {
     return namespaceUri != null &&
         !AndroidCompat.String_isEmpty(namespaceUri.trim()) &&
@@ -839,8 +858,8 @@ public class EdmxFormatParser extends XmlFormatParser {
     String value = null;
     EdmAnnotationElement<?> element = null;
     List<EdmAnnotation<?>> list = new ArrayList<EdmAnnotation<?>>();
-    if (!NON_USER_NAMESPACES.contains(q.getNamespaceUri())) {
-      // a user extension
+    if (!Enumerable.create(namespaces).contains(q.getNamespaceUri())) {
+      // a user extension 
       while (reader.hasNext()) {
         event = reader.nextEvent();
         if (event.isStartElement()) {

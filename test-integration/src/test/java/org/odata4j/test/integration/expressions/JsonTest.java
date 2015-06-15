@@ -84,7 +84,7 @@ public class JsonTest extends AbstractRuntimeTest {
     // $select now supported in InMemoryProducer.
     try {
       setup();
-      String output = this.rtFacade.getWebResource(uri + "Pojo(1)?$format=json&$select=ComplexType,StringList,FavoriteEntity,FavoriteEntity/Prop2&$expand=FavoriteEntity").getEntity();
+      String output = this.rtFacade.getWebResource(uri + "Pojo(1)?$format=jsonverbose&$select=ComplexType,StringList,FavoriteEntity,FavoriteEntity/Prop2&$expand=FavoriteEntity").getEntity();
       System.out.println(output);
       // did the properties round trip ok?
       OEntity e = consumer.getEntity("Pojo", (int) 1).expand("FavoriteEntity").select("ComplexType,StringList,FavoriteEntity,FavoriteEntity/Prop2").execute();
@@ -127,7 +127,7 @@ public class JsonTest extends AbstractRuntimeTest {
 
     server = this.rtFacade.startODataServer(uri);
 
-    consumer = this.rtFacade.createODataConsumer(uri, FormatType.JSON);
+    consumer = this.rtFacade.createODataConsumer(uri, FormatType.JSONVERBOSE);
     Assert.assertEquals(0, consumer.getEntitySets().count());
 
     // register a complex type:

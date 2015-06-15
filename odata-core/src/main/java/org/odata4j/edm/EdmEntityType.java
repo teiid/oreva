@@ -72,7 +72,7 @@ public class EdmEntityType extends EdmStructuralType {
   }
 
   public Boolean getHasStream() {
-    return hasStream;
+    return hasStream != null ? hasStream : false;
   }
 
   public Boolean getOpenType() {

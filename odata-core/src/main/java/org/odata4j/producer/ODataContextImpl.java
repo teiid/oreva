@@ -11,11 +11,14 @@ import javax.ws.rs.core.HttpHeaders;
  */
 public class ODataContextImpl implements ODataContext {
 
+  private Map<Class<?>, Object> contexts = new HashMap<Class<?>, Object>();
+  
   private ODataContextImpl() {}
 
+  @SuppressWarnings("unchecked")
   @Override
   public <T> T getContextAspect(Class<T> contextClass) {
-    for (Entry<Class, Object> aspect : contexts.entrySet()) {
+    for (Entry<Class<?>, Object> aspect : contexts.entrySet()) {
       if (contextClass.isAssignableFrom(aspect.getKey())) {
         return (T) aspect.getValue();
       }
@@ -45,6 +48,10 @@ public class ODataContextImpl implements ODataContext {
       // them as their native things).  I'm not really sure of the value
       // of this...isn't odata4j intrinsically linked to javax.ws.rs already?
       // it's not like we are going to swap that out...
+      
+      if (aspect == null) {
+        return this;
+      }
 
       if (HttpHeaders.class.isAssignableFrom(aspect.getClass())) {
         impl.addContextAspect(new ODataHeadersImpl((HttpHeaders) aspect));
@@ -65,5 +72,4 @@ public class ODataContextImpl implements ODataContext {
     contexts.put(aspect.getClass(), aspect);
   }
 
-  private Map<Class, Object> contexts = new HashMap<Class, Object>();
 }

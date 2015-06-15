@@ -1,9 +1,12 @@
 package org.odata4j.producer.resources;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.ws.rs.DELETE;
@@ -19,14 +22,16 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.Providers;
+import javax.ws.rs.ext.ContextResolver;
 
+import org.odata4j.core.OBindableEntities;
 import org.odata4j.core.ODataConstants;
 import org.odata4j.core.ODataHttpMethod;
 import org.odata4j.core.OEntity;
 import org.odata4j.core.OEntityIds;
 import org.odata4j.core.OEntityKey;
 import org.odata4j.edm.EdmEntitySet;
+import org.odata4j.edm.EdmFunctionImport;
 import org.odata4j.exceptions.BadRequestException;
 import org.odata4j.exceptions.MethodNotAllowedException;
 import org.odata4j.exceptions.NotFoundException;
@@ -34,19 +39,20 @@ import org.odata4j.format.FormatWriter;
 import org.odata4j.format.FormatWriterFactory;
 import org.odata4j.producer.EntityQueryInfo;
 import org.odata4j.producer.EntityResponse;
+import org.odata4j.producer.OBindableFunctionExtension;
 import org.odata4j.producer.ODataContext;
 import org.odata4j.producer.ODataContextImpl;
 import org.odata4j.producer.ODataProducer;
-import org.odata4j.producer.OMediaLinkExtension;
+import org.odata4j.producer.Responses;
 
-@Path("{entitySetName: [^/()]+?}{id: \\([^/()]+?\\)}")
+@Path("{entitySetName: [^/()]+?}{id: \\(.+?\\)}")
 public class EntityRequestResource extends BaseResource {
 
   private static final Logger log = Logger.getLogger(EntityRequestResource.class.getName());
 
   @PUT
   public Response updateEntity(@Context HttpHeaders httpHeaders, @Context UriInfo uriInfo,
-	  @Context Providers providers,
+      @Context ContextResolver<ODataProducer> producerResolver,
       @Context SecurityContext securityContext,
       @PathParam("entitySetName") String entitySetName,
       @PathParam("id") String id,
@@ -54,7 +60,7 @@ public class EntityRequestResource extends BaseResource {
 
     log.info(String.format("updateEntity(%s,%s)", entitySetName, id));
 
-    ODataProducer producer = getODataProducer(providers);
+    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
 
     // is this a new media resource?
     // check for HasStream
@@ -74,11 +80,11 @@ public class EntityRequestResource extends BaseResource {
         .aspect(entityKey)
         .build();
 
-    if (Boolean.TRUE.equals(entitySet.getType().getHasStream())) { // getHasStream can return null
+    if (entitySet.getType().getHasStream() != null && Boolean.TRUE.equals(entitySet.getType().getHasStream())) { // getHasStream can return null
       // yes it is!
       return updateMediaLinkEntry(httpHeaders, uriInfo, producer, entitySet, payload, OEntityKey.parse(id), odataContext);
     }
-
+    
     OEntity entity = this.getRequestEntity(httpHeaders, uriInfo, payload, producer.getMetadata(), entitySetName, OEntityKey.parse(id));
     producer.updateEntity(odataContext, entitySetName, entity);
 
@@ -96,7 +102,7 @@ public class EntityRequestResource extends BaseResource {
    *       processing the batch items.
    */
   protected Response updateEntity(HttpHeaders httpHeaders, UriInfo uriInfo, SecurityContext securityContext,
-      @Context Providers providers,
+      ContextResolver<ODataProducer> producerResolver,
       String entitySetName,
       String id,
       String payload,
@@ -104,7 +110,7 @@ public class EntityRequestResource extends BaseResource {
 
     log.info(String.format("updateEntity(%s,%s)", entitySetName, id));
 
-    ODataProducer producer = getODataProducer(providers);
+    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
 
     // is this a new media resource?
     // check for HasStream
@@ -114,17 +120,19 @@ public class EntityRequestResource extends BaseResource {
     }
 
     OEntityKey entityKey = OEntityKey.parse(id);
-
+  
+    //TODO: Un-comment this code when update is supported  for MLE  
+    /*
     if (Boolean.TRUE.equals(entitySet.getType().getHasStream())) { // getHasStream can return null
       // yes it is!
       ByteArrayInputStream inStream = new ByteArrayInputStream(payload.getBytes());
       try {
-        return updateMediaLinkEntry(httpHeaders, uriInfo, producer, entitySet, inStream, OEntityKey.parse(id), odataContext);
+        return updateMediaLinkEntry(httpHeaders, uriInfo, producer, entitySet, inStream, entityKey, odataContext);
       } finally {
         inStream.close();
       }
     }
-
+     */
     OEntity entity = this.getRequestEntity(httpHeaders, uriInfo, payload, producer.getMetadata(), entitySetName, OEntityKey.parse(id));
     producer.updateEntity(odataContext, entitySetName, entity);
 
@@ -144,14 +152,15 @@ public class EntityRequestResource extends BaseResource {
 
     @SuppressWarnings("unused")
     OEntity mle = super.createOrUpdateMediaLinkEntry(httpHeaders, uriInfo, entitySet, producer, payload, key, odataContext);
-
+    // make a producer call
+    producer.updateEntityWithStream(entitySet.getName(), mle);
     // TODO: hmmh..isn't this supposed to be HTTP 204 No Content?
     return Response.ok().header(ODataConstants.Headers.DATA_SERVICE_VERSION, ODataConstants.DATA_SERVICE_VERSION_HEADER).build();
   }
 
   @POST
   public Response mergeEntity(@Context HttpHeaders httpHeaders, @Context UriInfo uriInfo,
-      @Context Providers providers,
+      @Context ContextResolver<ODataProducer> producerResolver,
       @Context SecurityContext securityContext,
       @PathParam("entitySetName") String entitySetName,
       @PathParam("id") String id,
@@ -159,7 +168,7 @@ public class EntityRequestResource extends BaseResource {
 
     log.info(String.format("mergeEntity(%s,%s)", entitySetName, id));
 
-    ODataProducer producer = getODataProducer(providers);
+    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
 
     OEntityKey entityKey = OEntityKey.parse(id);
     ODataContext context = ODataContextImpl.builder().aspect(httpHeaders).aspect(securityContext).aspect(producer).build();
@@ -196,7 +205,7 @@ public class EntityRequestResource extends BaseResource {
 
   @DELETE
   public Response deleteEntity(@Context HttpHeaders httpHeaders, @Context UriInfo uriInfo,
-      @Context Providers providers,
+      @Context ContextResolver<ODataProducer> producerResolver,
       @Context SecurityContext securityContext,
       @QueryParam("$format") String format,
       @QueryParam("$callback") String callback,
@@ -205,11 +214,11 @@ public class EntityRequestResource extends BaseResource {
 
     log.info(String.format("deleteEntity(%s,%s)", entitySetName, id));
 
-    ODataProducer producer = getODataProducer(providers);
+    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
 
     // the OData URI scheme makes it impossible to have unique @Paths that refer
     // to functions and entity sets
-    if (producer.getMetadata().findEdmFunctionImport(entitySetName) != null) {
+    if (producer.getMetadata().containsEdmFunctionImport(entitySetName)) {
       // functions that return collections of entities should support the
       // same set of query options as entity set queries so give them everything.
       return FunctionResource.callFunction(ODataHttpMethod.DELETE, httpHeaders, uriInfo, securityContext, producer, entitySetName, format, callback, null);
@@ -233,6 +242,7 @@ public class EntityRequestResource extends BaseResource {
         .aspect(entityKey)
         .build();
 
+    /*
     if (Boolean.TRUE.equals(entitySet.getType().getHasStream())) { // getHasStream can return null
       // yes it is!
       // first, the producer must support OMediaLinkExtension
@@ -240,11 +250,11 @@ public class EntityRequestResource extends BaseResource {
 
       // get a media link entry from the extension
       OEntity mle = mediaLinkExtension.getMediaLinkEntryForUpdateOrDelete(odataContext, entitySet, entityKey, httpHeaders);
-      mediaLinkExtension.deleteStream(odataContext, mle, null /* QueryInfo, may need to get rid of */);
+      mediaLinkExtension.deleteStream(odataContext, mle, null );
       // TODO: hmmh..isn't this supposed to be HTTP 204 No Content?
       return Response.ok().header(ODataConstants.Headers.DATA_SERVICE_VERSION, ODataConstants.DATA_SERVICE_VERSION_HEADER).build();
     }
-
+  */
     producer.deleteEntity(odataContext, entitySetName, entityKey);
 
     // TODO: hmmh..isn't this supposed to be HTTP 204 No Content?
@@ -255,7 +265,7 @@ public class EntityRequestResource extends BaseResource {
   @Produces({ ODataConstants.APPLICATION_ATOM_XML_CHARSET_UTF8, ODataConstants.TEXT_JAVASCRIPT_CHARSET_UTF8, ODataConstants.APPLICATION_JAVASCRIPT_CHARSET_UTF8 })
   public Response getEntity(@Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
-      @Context Providers providers,
+      @Context ContextResolver<ODataProducer> producerResolver,
       @Context SecurityContext securityContext,
       @PathParam("entitySetName") String entitySetName,
       @PathParam("id") String id,
@@ -264,7 +274,7 @@ public class EntityRequestResource extends BaseResource {
       @QueryParam("$expand") String expand,
       @QueryParam("$select") String select) {
 
-    ODataProducer producer = getODataProducer(providers);
+    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
     return getEntityImpl(httpHeaders, uriInfo, securityContext, producer, entitySetName, id, format, callback, expand, select);
   }
 
@@ -298,7 +308,34 @@ public class EntityRequestResource extends BaseResource {
     } catch (IllegalArgumentException e) {
       throw new BadRequestException("Illegal key " + id, e);
     }
-
+    
+    // Handle bound functions
+    if (response != null && response.getEntity() != null){
+      List<EdmFunctionImport> bindableFunctions = producer.getMetadata().findBindableEdmFunctionImport(response.getEntity().getType());
+      Map<String, EdmFunctionImport> exposedFunctions = new HashMap<String, EdmFunctionImport>();
+      if (bindableFunctions.size() > 0){
+        OBindableFunctionExtension bindableExtension = producer.findExtension(OBindableFunctionExtension.class);
+        String namespace = producer.getMetadata().getSchemaNamespaceOfEdmEntitySet(response.getEntity().getEntitySet());
+        OEntity entity = response.getEntity();
+        Iterator<EdmFunctionImport> iter = bindableFunctions.iterator();
+        while (iter.hasNext()){
+          EdmFunctionImport f = iter.next();
+          boolean bindable = 
+              f.isAlwaysBindable() 
+              || bindableExtension == null 
+              || bindableExtension.isFunctionBindable(f, entity);
+          if (bindable){
+            exposedFunctions.put(namespace + "." + f.getName(), f);
+          }
+        }
+        if (bindableFunctions.size() > 0){
+          // Add bindable functions as OEntity extension
+          entity = OBindableEntities.createBindableEntity(entity, exposedFunctions);
+        }
+        response = Responses.entity(entity);
+      }
+    }
+    
     StringWriter sw = new StringWriter();
     FormatWriter<EntityResponse> fw = FormatWriterFactory.getFormatWriter(EntityResponse.class, httpHeaders.getAcceptableMediaTypes(), format, callback);
     fw.write(uriInfo, sw, response);
@@ -325,12 +362,31 @@ public class EntityRequestResource extends BaseResource {
   }
 
   @Path("{navProp: .+}")
-  public PropertyRequestResource getNavProperty() {
+  public BaseResource getNavProperty(
+      @Context ContextResolver<ODataProducer> producerResolver,
+      @PathParam("entitySetName") String entitySetName,
+      @PathParam("id") String id,
+      @PathParam("navProp") String navProp) {
+    
+    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
+    if (producer.getMetadata().containsEdmFunctionImport(navProp)) {
+      return new FunctionResource();
+    }
+    
     return new PropertyRequestResource();
   }
 
   @Path("{navProp: .+?}{optionalParens: ((\\(\\)))}")
-  public PropertyRequestResource getSimpleNavProperty() {
+  public BaseResource getSimpleNavProperty(
+      @Context ContextResolver<ODataProducer> producerResolver,
+      @PathParam("entitySetName") String entitySetName,
+      @PathParam("id") String id,
+      @PathParam("navProp") String navProp) {
+    
+    ODataProducer producer = producerResolver.getContext(ODataProducer.class);
+    if (producer.getMetadata().containsEdmFunctionImport(navProp)) {
+      return new FunctionResource();
+    }    
     return new PropertyRequestResource();
   }
 

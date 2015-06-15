@@ -1,5 +1,11 @@
 package org.odata4j.core;
 
+import java.io.StringReader;
+
+import org.odata4j.edm.EdmCollectionType;
+import org.odata4j.edm.EdmComplexType;
+import org.odata4j.edm.EdmDataServices;
+import org.odata4j.edm.EdmEntityType;
 import org.odata4j.edm.EdmSimpleType;
 import org.odata4j.edm.EdmType;
 import org.odata4j.exceptions.NotImplementedException;
@@ -7,6 +13,10 @@ import org.odata4j.expression.CommonExpression;
 import org.odata4j.expression.Expression;
 import org.odata4j.expression.ExpressionParser;
 import org.odata4j.expression.LiteralExpression;
+import org.odata4j.format.Settings;
+import org.odata4j.format.json.JsonCollectionFormatParser;
+import org.odata4j.format.json.JsonComplexObjectFormatParser;
+import org.odata4j.format.json.JsonEntityFormatParser;
 
 /**
  * A static factory to create immutable {@link OFunctionParameter} instances.
@@ -35,15 +45,41 @@ public class OFunctionParameters {
     return new FunctionParameterImpl(name, OSimpleObjects.create(type, value));
   }
 
-  /** Creates a new OFunctionParameter by parsing a string value */
-  public static OFunctionParameter parse(String name, EdmType type, String value) {
+  /** Creates a new OFunctionParameter by parsing a string value 
+   * @param edmDataServices */
+  public static OFunctionParameter parse(EdmDataServices edmDataServices, String name, EdmType type, String value) {
     if (type instanceof EdmSimpleType) {
       CommonExpression ce = ExpressionParser.parse(value);
-      if (ce instanceof LiteralExpression) {
+      if (ce instanceof LiteralExpression) { 
         // may have to case the literalValue based on type...
         Object val = convert(Expression.literalValue((LiteralExpression) ce), (EdmSimpleType<?>) type);
         return new FunctionParameterImpl(name, OSimpleObjects.create((EdmSimpleType<?>) type, val));
       }
+    } else if (type instanceof EdmCollectionType) {
+      JsonCollectionFormatParser jsonColParser = new JsonCollectionFormatParser((EdmCollectionType) type, edmDataServices);
+      OCollection<? extends OObject> o = jsonColParser.parse(new StringReader(value));
+      OFunctionParameter functionParameter = OFunctionParameters.create(name, o);
+      return functionParameter;     
+    }else if (type instanceof EdmComplexType) {
+      JsonComplexObjectFormatParser jsonCTParser = new JsonComplexObjectFormatParser((EdmComplexType)type);
+      OComplexObject o = jsonCTParser.parse(new StringReader(value));
+      OFunctionParameter functionParameter = OFunctionParameters.create(name, o);
+      return functionParameter;
+    } else if (type instanceof EdmEntityType) {
+      Settings s = new Settings(
+          // TODO: version should coming from client
+          ODataConstants.DATA_SERVICE_VERSION, 
+          edmDataServices,
+          null,
+          null,
+          null, // FeedCustomizationMapping fcMapping,
+          false, // boolean isResponse);
+          type); // expected type
+
+      JsonEntityFormatParser jsonETParser = new JsonEntityFormatParser(s);
+      OEntity o = jsonETParser.parse(new StringReader(value));
+      OFunctionParameter functionParameter = OFunctionParameters.create(name, o);
+      return functionParameter;
     }
     // TODO for other types
     throw new NotImplementedException();

@@ -11,8 +11,8 @@ import org.odata4j.core.OEntityKey;
 import org.odata4j.core.OQueryRequest;
 import org.odata4j.edm.EdmDataServices;
 import org.odata4j.edm.EdmEntitySet;
-import org.odata4j.edm.EdmFunctionImport;
 import org.odata4j.internal.EntitySegment;
+import org.odata4j.urlencoder.ConversionUtil;
 
 /**
  * Shared consumer request implementation for operations dealing with multiple response entities.
@@ -37,16 +37,17 @@ public abstract class AbstractConsumerQueryRequestBase<T> implements OQueryReque
   private final Map<String, String> customs = new HashMap<String, String>();
 
   public AbstractConsumerQueryRequestBase(ODataClient client, String serviceRootUri, EdmDataServices metadata, String lastSegment) {
+    this(client, serviceRootUri, metadata, lastSegment, false);
+  }
+
+  public AbstractConsumerQueryRequestBase(ODataClient client, String serviceRootUri, EdmDataServices metadata, String lastSegment, boolean isFunctionCall) {
     this.client = client;
     this.serviceRootUri = serviceRootUri;
     this.metadata = metadata;
     this.lastSegment = lastSegment;
 
-    this.entitySet = metadata.findEdmEntitySet(lastSegment);
-    if (this.entitySet == null) {
-      EdmFunctionImport function = metadata.findEdmFunctionImport(lastSegment);
-      if (function != null)
-        this.entitySet = function.getEntitySet();
+    if (!isFunctionCall) {
+      this.entitySet = metadata.findEdmEntitySet(lastSegment);
     }
   }
 
@@ -119,6 +120,8 @@ public abstract class AbstractConsumerQueryRequestBase<T> implements OQueryReque
 
   @Override
   public OQueryRequest<T> filter(String filter) {
+    //encode filter string 
+    filter = ConversionUtil.encodeString(filter);
     this.filter = filter;
     return this;
   }

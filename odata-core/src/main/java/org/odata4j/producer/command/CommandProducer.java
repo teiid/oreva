@@ -1,5 +1,6 @@
 package org.odata4j.producer.command;
 
+import java.io.InputStream;
 import java.util.Map;
 
 import org.odata4j.command.Command;
@@ -13,7 +14,9 @@ import org.odata4j.core.Throwables;
 import org.odata4j.edm.EdmDataServices;
 import org.odata4j.edm.EdmDataServicesProvider;
 import org.odata4j.edm.EdmFunctionImport;
+import org.odata4j.exceptions.NotImplementedException;
 import org.odata4j.producer.BaseResponse;
+import org.odata4j.producer.ContextStream;
 import org.odata4j.producer.CountResponse;
 import org.odata4j.producer.EntitiesResponse;
 import org.odata4j.producer.EntityIdResponse;
@@ -144,4 +147,46 @@ public class CommandProducer implements ODataProducer {
   public <TExtension extends OExtension<ODataProducer>> TExtension findExtension(Class<TExtension> clazz) {
     return null;
   }
+
+  @Override
+  public void beginChangeSetBoundary() {
+    throw new NotImplementedException("ChangeSets not supported for " + this.getClass().getName());
+  }
+
+  @Override
+  public void commitChangeSetBoundary() {
+    throw new NotImplementedException("ChangeSets not supported for " + this.getClass().getName());
+  }
+
+  @Override
+  public void rollbackChangeSetBoundary() {
+    throw new NotImplementedException("ChangeSets not supported for " + this.getClass().getName());
+  }
+
+  @Override
+  public EntityResponse createResponseForBatchPostOperation(String entitySetName, OEntity entity) {
+    throw new NotImplementedException("create Response For Batch Post Operation not supported for " + this.getClass().getName());
+  }
+
+  @Override
+  public InputStream getInputStreamForMediaLink(String entitySetName, OEntityKey entityKey, EntityQueryInfo queryInfo) {
+    throw new NotImplementedException("Streaming is not supported for " + this.getClass().getName());
+  }
+
+  @Override
+  public void updateEntityWithStream(String entitySetName, OEntity entity) {
+    throw new NotImplementedException("Updation of stream is not supported for " + this.getClass().getName());
+  }
+
+  @Override
+  public ContextStream getInputStreamForNamedStream(String entitySetName, OEntityKey entityKey, String columnName, QueryInfo queryInfo) {
+    throw new NotImplementedException("Streaming is not supported for " + this.getClass().getName());
+  }
+
+  @Override
+  public void updateEntityWithNamedStream(String entitySetName, OEntityKey entityKey, String columnName, ContextStream streamContext) {
+    throw new NotImplementedException("Updation of named stream is not supported for " + this.getClass().getName());
+    
+  }
+
 }

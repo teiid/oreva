@@ -2,10 +2,12 @@ package org.odata4j.consumer;
 
 import org.core4j.Enumerable;
 import org.odata4j.core.ODataConstants.Headers;
+import org.odata4j.core.ODataVersion;
 import org.odata4j.core.OEntityDeleteRequest;
 import org.odata4j.core.OEntityKey;
 import org.odata4j.edm.EdmDataServices;
 import org.odata4j.exceptions.ODataProducerException;
+import org.odata4j.format.FormatType;
 
 /**
  * Delete-request implementation.
@@ -22,10 +24,7 @@ public class ConsumerDeleteEntityRequest extends AbstractConsumerEntityRequest<V
 
   @Override
   public Void execute() throws ODataProducerException {
-    String path = Enumerable.create(getSegments()).join("/");
-    ODataClientRequest request = ODataClientRequest.delete(getServiceRootUri() + path);
-    if (ifMatch != null)
-      request.header(Headers.IF_MATCH, ifMatch);
+    ODataClientRequest request = getRequest();
     getClient().deleteEntity(request);
     return null;
   }
@@ -34,6 +33,26 @@ public class ConsumerDeleteEntityRequest extends AbstractConsumerEntityRequest<V
   public OEntityDeleteRequest ifMatch(String precondition) {
     ifMatch = precondition;
     return this;
+  }
+
+  private ODataClientRequest getRequest() {
+    String path = Enumerable.create(getSegments()).join("/");
+    ODataClientRequest request = ODataClientRequest.delete(getServiceRootUri() + path);
+    if (ifMatch != null)
+      request.header(Headers.IF_MATCH, ifMatch);
+
+    return request;
+  }
+
+  @Override
+  public String formatRequest(FormatType formatType) {
+    ODataClientRequest request = getRequest();
+    return ConsumerBatchRequestHelper.formatSingleRequest(request, formatType);
+  }
+
+  @Override
+  public Object getResult(ODataVersion version, Object payload, FormatType formatType) {
+    return null;
   }
 
 }

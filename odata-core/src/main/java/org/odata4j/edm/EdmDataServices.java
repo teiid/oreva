@@ -10,8 +10,10 @@ import org.odata4j.core.ODataConstants;
 import org.odata4j.core.ODataVersion;
 import org.odata4j.core.OPredicates;
 import org.odata4j.core.PrefixedNamespace;
+import org.odata4j.edm.EdmFunctionImport.FunctionKind;
 import org.odata4j.edm.EdmItem.BuilderContext;
 import org.odata4j.edm.EdmProperty.CollectionKind;
+import org.odata4j.exceptions.BadRequestException;
 import org.odata4j.exceptions.NotFoundException;
 import org.odata4j.internal.AndroidCompat;
 
@@ -121,16 +123,78 @@ public class EdmDataServices {
     }
     return null;
   }
+  
+  public boolean containsEdmFunctionImport(String functionImportName){
+    int dotPos = functionImportName.indexOf(".");
+    String schemaName = null;
+    if (dotPos > 0){
+      // We have a fully-qualified name
+      schemaName = functionImportName.substring(0, dotPos);
+      functionImportName = functionImportName.substring(dotPos + 1); 
+    }
+    for (EdmSchema schema : this.schemas) {
+      if (schemaName == null || schemaName.equals(schema.getNamespace())){
+        for (EdmEntityContainer eec : schema.getEntityContainers()) {
+          for (EdmFunctionImport efi : eec.getFunctionImports()) {
+            if (efi.getName().equals(functionImportName)) {
+              return true;
+            }
+          }
+        }
+      }  
+    }
+    return false;  
+  }
+  
+  public EdmFunctionImport findEdmFunctionImport(String functionImportName) {
+    return findEdmFunctionImport(functionImportName, null);
+  }
+  
+  public EdmFunctionImport findEdmFunctionImport(String functionImportName, EdmType bindingType) {
+    return findEdmFunctionImport(functionImportName, bindingType, null);
+  }
+  
+  public EdmFunctionImport findEdmFunctionImport(String functionImportName, EdmType bindingType, EdmFunctionImport.FunctionKind functionKind) {
+    int dotPos = functionImportName.indexOf(".");
+    String schemaName = null;
+    if (dotPos > 0){
+      // We have a fully-qualified name
+      schemaName = functionImportName.substring(0, dotPos);
+      functionImportName = functionImportName.substring(dotPos + 1); 
+    }
+    List<EdmFunctionImport> matchingFunctions = new ArrayList<EdmFunctionImport>();
+    for (EdmSchema schema : this.schemas) {
+      if (schemaName == null || schemaName.equals(schema.getNamespace())){
+        for (EdmEntityContainer eec : schema.getEntityContainers()) {
+          for (EdmFunctionImport efi : eec.getFunctionImports()) {
+            if (efi.getName().equals(functionImportName)){
+              if ((bindingType != null && efi.isBindable() && efi.getBoundParameter().getType().equals(bindingType)) 
+                  || bindingType == null){
+                if (functionKind == null || (functionKind.equals(efi.getFunctionKind()))){
+                  matchingFunctions.add(efi);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    if (matchingFunctions.size() == 1){
+      return matchingFunctions.get(0);
+    } else if (matchingFunctions.size() > 1){
+      throw new BadRequestException("Ambiguous call to function : '" + functionImportName + "', multiple functions match parameters.");
+    } else {
+      return null;
+    }
+  }
 
-  private EdmFunctionImport findEdmFunctionImport(String entityContainerName, String functionImportName) {
+    
+  public String getSchemaNamespaceOfEdmEntitySet(EdmEntitySet entitySet) {
     for (EdmSchema schema : this.schemas) {
       for (EdmEntityContainer eec : schema.getEntityContainers()) {
-        if (!eec.getName().equals(entityContainerName)) {
-          continue;
-        }
-        for (EdmFunctionImport efi : eec.getFunctionImports()) {
-          if (efi.getName().equals(functionImportName)) {
-            return efi;
+        for (EdmEntitySet ees : eec.getEntitySets()) {
+          if (ees.equals(entitySet)) {
+            return schema.getNamespace();
           }
         }
       }
@@ -138,25 +202,22 @@ public class EdmDataServices {
     return null;
   }
   
-  public EdmFunctionImport findEdmFunctionImport(String functionImportName) {
-    int idx = functionImportName.indexOf('.');
-    if (idx != -1) {
-      EdmFunctionImport efi = findEdmFunctionImport(functionImportName.substring(0, idx), functionImportName.substring(idx+1));
-      if (efi != null) {
-        return efi;
-      }
-    }    
+  public List<EdmFunctionImport> findBindableEdmFunctionImport(EdmType boundingType){
+    List<EdmFunctionImport> result = new ArrayList<EdmFunctionImport>();
     for (EdmSchema schema : this.schemas) {
       for (EdmEntityContainer eec : schema.getEntityContainers()) {
-        for (EdmFunctionImport efi : eec.getFunctionImports()) {
-          if (efi.getName().equals(functionImportName)) {
-            return efi;
+        for (EdmFunctionImport efi : eec.getFunctionImports()) {       
+          if (efi.isBindable()) {
+            EdmFunctionParameter param = efi.getBoundParameter();
+            if (param != null && param.getType().equals(boundingType)) {
+            result.add(efi);
+            }
           }
         }
       }
     }
-    return null;
-  }  
+    return result;
+  }
 
   public EdmComplexType findEdmComplexType(String complexTypeFQName) {
     for (EdmSchema schema : this.schemas) {
@@ -204,7 +265,7 @@ public class EdmDataServices {
   public EdmAssociation findEdmAssociation(String fqName) {
     for (EdmSchema schema : this.schemas) {
       for (EdmAssociation assoc : schema.getAssociations()) {
-        if (assoc.getFQNamespaceName().equals(fqName)) {
+        if (assoc.getFQNamespaceName().equals(fqName) || assoc.getName().equals(fqName)) {
           return assoc;
         }
       }
@@ -253,6 +314,20 @@ public class EdmDataServices {
     return rt;
   }
 
+  public Iterable<EdmFunctionImport> getFunctions(FunctionKind functionKind) {
+    List<EdmFunctionImport> rt = new ArrayList<EdmFunctionImport>();
+    for (EdmSchema schema : this.schemas) {
+      for (EdmEntityContainer eec : schema.getEntityContainers()) {
+        for (EdmFunctionImport efi : eec.getFunctionImports()) {
+          if (efi.getFunctionKind() == functionKind) {
+            rt.add(efi);
+          }
+        }
+      }
+    }
+    return rt;
+  }
+  
   public EdmSchema findSchema(String namespace) {
     for (EdmSchema schema : this.schemas) {
       if (schema.getNamespace().equals(namespace)) {
@@ -280,6 +355,12 @@ public class EdmDataServices {
   }
 
   public EdmType resolveType(String fqTypeName) {
+    boolean isCollection = false;
+    String collectionPrefix = "Collection(";
+    if (fqTypeName.startsWith(collectionPrefix)) {
+      isCollection = true;
+      fqTypeName = fqTypeName.substring(collectionPrefix.length(), fqTypeName.length()-1);
+    }
     EdmType t = EdmType.getSimple(fqTypeName);
     if (t == null) {
       // not simple, try complex
@@ -288,6 +369,10 @@ public class EdmDataServices {
         // try entity type
         t = this.findEdmEntityType(fqTypeName);
       }
+    }
+    
+    if(isCollection && t != null) {
+      t = new EdmCollectionType(CollectionKind.Collection, t);
     }
     return t;
   }
@@ -337,7 +422,7 @@ public class EdmDataServices {
       for (EdmSchema.Builder schema : this.schemas) {
         String fqName = schema.dealias(complexTypeFQName);
         for (EdmComplexType.Builder ect : schema.getComplexTypes()) {
-          if (ect.getFullyQualifiedTypeName().equals(fqName)) {
+          if (ect.getFullyQualifiedTypeName().equals(fqName) || ect.getFullyQualifiedTypeName().equals(complexTypeFQName)) {
             return ect;
           }
         }
@@ -395,6 +480,27 @@ public class EdmDataServices {
       //       guessing that in that case, the TempEdmFunctionImport will already
       //       have a EdmRowType instance it built during parsing.
       // first, try to resolve the type name as a simple or complex type
+      
+      // Is it a collection ?
+      if (fqTypeName.endsWith("")){
+        int parenthesisPos = fqTypeName.indexOf("(");
+        if (parenthesisPos > 0){
+          String collectionKindS = fqTypeName.substring(0, parenthesisPos);
+          CollectionKind collectionKind = null;
+          try {
+          collectionKind = CollectionKind.valueOf(collectionKindS);
+          } catch (Exception e){
+            // Ignore, means it is probably not a collection
+          }
+          if (collectionKind != null){
+            String enclosingTypeName = fqTypeName.substring(parenthesisPos + 1, fqTypeName.length() - 1);
+            // Return recursive call on enclosing type name
+            return EdmCollectionType.newBuilder()
+                .setKind(collectionKind).setCollectionType(resolveType(enclosingTypeName));
+          }
+        }
+      }
+      EdmType type = EdmType.getSimple(fqTypeName);
       EdmType.Builder<?, ?> builder = null;
       if (fqTypeName.startsWith(CollectionKind.Bag.name()+"(") && fqTypeName.endsWith(")")){    	  
         fqTypeName = fqTypeName.substring(4, fqTypeName.length()-1);

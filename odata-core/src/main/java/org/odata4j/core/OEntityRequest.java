@@ -7,7 +7,7 @@ import org.odata4j.exceptions.ODataProducerException;
  *
  * @param <T>  the java-type of the operation response
  */
-public interface OEntityRequest<T> {
+public interface OEntityRequest<T> extends OBatchSupport {
 
   /**
    * Sends the entity-request to the OData service and returns the response.

@@ -22,6 +22,17 @@ public class OClientBehaviors {
   }
 
   /**
+   * Creates a behavior which handles custom query parameters.
+   *
+   * @param name the parameter name
+   * @param value the parameter value
+   * @return the o client behavior
+   */
+  public static OClientBehavior customParameters(String name, String value) {
+    return new CustomParameterBehavior(name, value);
+  }
+  
+  /**
    * Creates a behavior that signs requests properly for the Azure Table Storage service.
    *
    * @param account  azure account key

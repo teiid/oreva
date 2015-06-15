@@ -18,7 +18,7 @@ public class JsonEntryFormatParserTest extends AbstractEntryFormatParserTest {
 
   @BeforeClass
   public static void setupClass() throws Exception {
-    createFormatParser(FormatType.JSON);
+    createFormatParser(FormatType.JSONVERBOSE);
   }
 
   @Test

@@ -1,10 +1,14 @@
 package org.odata4j.internal;
 
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
+
+import javax.sql.rowset.serial.SerialBlob;
 
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
@@ -100,6 +104,21 @@ public class TypeConverter {
 
     if (desiredClass.equals(UUID.class) && (objClass.equals(Guid.class) || objClass.equals(String.class)))
       return (T) UUID.fromString(obj.toString());
+
+    if ((objClass.equals(SerialBlob.class) || objClass.equals(Blob.class)) && desiredClass.equals(byte[].class)) {
+      Blob blob = (Blob) obj;
+      byte[] bytes = null;
+      try {
+        int length = (int) blob.length();
+        if (length > 0) {
+          bytes = blob.getBytes(1, length);
+        } else {
+          bytes = new byte[] {};
+        }
+      } catch (SQLException e) {
+      }
+      return (T) bytes;
+    }
 
     throw new UnsupportedOperationException(String.format("Unable to convert %s into %s", objClass.getName(), desiredClass.getName()));
   }

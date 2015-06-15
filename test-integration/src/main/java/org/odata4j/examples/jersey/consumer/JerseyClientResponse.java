@@ -1,5 +1,8 @@
 package org.odata4j.examples.jersey.consumer;
 
+import java.io.InputStream;
+
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.odata4j.consumer.ODataClientResponse;
@@ -25,4 +28,14 @@ public class JerseyClientResponse implements ODataClientResponse {
 
   @Override
   public void close() {}
+
+  @Override
+  public InputStream getEntityInputStream() {
+    return clientResponse.getEntityInputStream();
+  }
+
+  @Override
+  public MediaType getMediaType() {
+    return clientResponse.getType();
+  }
 }
