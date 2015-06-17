@@ -399,12 +399,12 @@ public class EdmDataServices {
       if (fqTypeName.startsWith(CollectionKind.Bag.name()+"(") && fqTypeName.endsWith(")")){    	  
         fqTypeName = fqTypeName.substring(4, fqTypeName.length()-1);
         builder = EdmCollectionType.newBuilder()
-          .setKind(CollectionKind.Bag)
+          .setKind(CollectionKind.Collection)
           .setCollectionType(getTypeBuilder(fqTypeName));
       } else if (fqTypeName.startsWith(CollectionKind.List.name()+"(") && fqTypeName.endsWith(")")){
         fqTypeName = fqTypeName.substring(5, fqTypeName.length()-1);
         builder = EdmCollectionType.newBuilder()
-          .setKind(CollectionKind.List)
+          .setKind(CollectionKind.Collection)
           .setCollectionType(getTypeBuilder(fqTypeName));
       } else if (fqTypeName.startsWith(CollectionKind.Collection.name()+"(") && fqTypeName.endsWith(")")){
         fqTypeName = fqTypeName.substring(11, fqTypeName.length()-1);

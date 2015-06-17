@@ -30,7 +30,9 @@ public class MetadataResource {
   private static final MediaType APPLICATION_ATOMSVC_XML_MEDIATYPE = MediaType.valueOf(ODataConstants.APPLICATION_ATOMSVC_XML);
 
   @GET
-  @Produces({ ODataConstants.APPLICATION_XML_CHARSET_UTF8, ODataConstants.APPLICATION_ATOMSVC_XML_CHARSET_UTF8, ODataConstants.APPLICATION_XML })
+  @Produces({ ODataConstants.APPLICATION_XML_CHARSET_UTF8,
+			ODataConstants.APPLICATION_ATOMSVC_XML_CHARSET_UTF8,
+			ODataConstants.APPLICATION_XML })
   public Response getMetadata(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
@@ -70,7 +72,11 @@ public class MetadataResource {
   @Path("{entitySetName}")
   @Produces({ ODataConstants.APPLICATION_ATOM_XML_CHARSET_UTF8,
       ODataConstants.TEXT_JAVASCRIPT_CHARSET_UTF8,
-      ODataConstants.APPLICATION_JAVASCRIPT_CHARSET_UTF8 })
+      ODataConstants.APPLICATION_JAVASCRIPT_CHARSET_UTF8,
+		ODataConstants.APPLICATION_ATOM_XML,
+		ODataConstants.APPLICATION_XML,
+		ODataConstants.APPLICATION_JAVASCRIPT })
+      
   public Response getMetadataEntities(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,
@@ -104,7 +110,11 @@ public class MetadataResource {
   @Path("{entitySetName}{id: (\\(.+?\\))}")
   @Produces({ ODataConstants.APPLICATION_ATOM_XML_CHARSET_UTF8,
       ODataConstants.TEXT_JAVASCRIPT_CHARSET_UTF8,
-      ODataConstants.APPLICATION_JAVASCRIPT_CHARSET_UTF8 })
+      ODataConstants.APPLICATION_JAVASCRIPT_CHARSET_UTF8,
+		ODataConstants.APPLICATION_ATOM_XML,
+		ODataConstants.APPLICATION_XML,
+		ODataConstants.APPLICATION_JAVASCRIPT })
+      
   public Response getMetadataEntity(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,

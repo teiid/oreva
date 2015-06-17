@@ -10,7 +10,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Providers;
 
 import org.odata4j.core.OEntityKey;
