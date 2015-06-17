@@ -123,10 +123,12 @@ public class PropertyRequestResource extends BaseResource {
   }
 
   @GET
-  @Produces({
-      ODataConstants.APPLICATION_ATOM_XML_CHARSET_UTF8,
-      ODataConstants.TEXT_JAVASCRIPT_CHARSET_UTF8,
-      ODataConstants.APPLICATION_JAVASCRIPT_CHARSET_UTF8 })
+  @Produces({ ODataConstants.APPLICATION_ATOM_XML_CHARSET_UTF8,
+			ODataConstants.TEXT_JAVASCRIPT_CHARSET_UTF8,
+			ODataConstants.APPLICATION_JAVASCRIPT_CHARSET_UTF8,
+			ODataConstants.APPLICATION_ATOM_XML,
+			ODataConstants.APPLICATION_XML,
+			ODataConstants.APPLICATION_JAVASCRIPT })
   public Response getNavProperty(
       @Context HttpHeaders httpHeaders,
       @Context UriInfo uriInfo,

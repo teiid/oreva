@@ -20,7 +20,7 @@ public class EdmTypeTest {
   @Test
   public void edmCollectionTypes(){
     Assert.assertTrue(EdmDataServices.newBuilder().resolveType("Collection(Edm.String)").build().equals(new EdmCollectionType(CollectionKind.Collection, EdmSimpleType.STRING)));
-    Assert.assertTrue(EdmDataServices.newBuilder().resolveType("Bag(Edm.String)").build().equals(new EdmCollectionType(CollectionKind.Bag, EdmSimpleType.STRING)));
-    Assert.assertTrue(EdmDataServices.newBuilder().resolveType("List(Edm.String)").build().equals(new EdmCollectionType(CollectionKind.List, EdmSimpleType.STRING)));
+    Assert.assertTrue(EdmDataServices.newBuilder().resolveType("Bag(Edm.String)").build().equals(new EdmCollectionType(CollectionKind.Collection, EdmSimpleType.STRING)));
+    Assert.assertTrue(EdmDataServices.newBuilder().resolveType("List(Edm.String)").build().equals(new EdmCollectionType(CollectionKind.Collection, EdmSimpleType.STRING)));
   }
 }
