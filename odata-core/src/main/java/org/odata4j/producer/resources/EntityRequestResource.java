@@ -81,9 +81,7 @@ public class EntityRequestResource extends BaseResource {
 
     OEntity entity = this.getRequestEntity(httpHeaders, uriInfo, payload, producer.getMetadata(), entitySetName, OEntityKey.parse(id));
     producer.updateEntity(odataContext, entitySetName, entity);
-
-    // TODO: hmmh..isn't this supposed to be HTTP 204 No Content?
-    return Response.ok().header(ODataConstants.Headers.DATA_SERVICE_VERSION, ODataConstants.DATA_SERVICE_VERSION_HEADER).build();
+    return Response.noContent().header(ODataConstants.Headers.DATA_SERVICE_VERSION, ODataConstants.DATA_SERVICE_VERSION_HEADER).build();
   }
 
 
@@ -127,9 +125,7 @@ public class EntityRequestResource extends BaseResource {
 
     OEntity entity = this.getRequestEntity(httpHeaders, uriInfo, payload, producer.getMetadata(), entitySetName, OEntityKey.parse(id));
     producer.updateEntity(odataContext, entitySetName, entity);
-
-    // TODO: hmmh..isn't this supposed to be HTTP 204 No Content?
-    return Response.ok().header(ODataConstants.Headers.DATA_SERVICE_VERSION, ODataConstants.DATA_SERVICE_VERSION_HEADER).build();
+    return Response.noContent().header(ODataConstants.Headers.DATA_SERVICE_VERSION, ODataConstants.DATA_SERVICE_VERSION_HEADER).build();
   }
 
   /**
@@ -168,24 +164,18 @@ public class EntityRequestResource extends BaseResource {
     if ("MERGE".equals(method)) {
       OEntity entity = this.getRequestEntity(httpHeaders, uriInfo, payload, producer.getMetadata(), entitySetName, entityKey);
       producer.mergeEntity(context, entitySetName, entity);
-
-      // TODO: hmmh..isn't this supposed to be HTTP 204 No Content?
-      return Response.ok().header(ODataConstants.Headers.DATA_SERVICE_VERSION, ODataConstants.DATA_SERVICE_VERSION_HEADER).build();
+      return Response.noContent().header(ODataConstants.Headers.DATA_SERVICE_VERSION, ODataConstants.DATA_SERVICE_VERSION_HEADER).build();
     }
 
     if ("DELETE".equals(method)) {
       producer.deleteEntity(context, entitySetName, entityKey);
-
-      // TODO: hmmh..isn't this supposed to be HTTP 204 No Content?
       return Response.ok().header(ODataConstants.Headers.DATA_SERVICE_VERSION, ODataConstants.DATA_SERVICE_VERSION_HEADER).build();
     }
 
     if ("PUT".equals(method)) {
       OEntity entity = this.getRequestEntity(httpHeaders, uriInfo, payload, producer.getMetadata(), entitySetName, OEntityKey.parse(id));
       producer.updateEntity(context, entitySetName, entity);
-
-      // TODO: hmmh..isn't this supposed to be HTTP 204 No Content?
-      return Response.ok().header(ODataConstants.Headers.DATA_SERVICE_VERSION, ODataConstants.DATA_SERVICE_VERSION_HEADER).build();
+      return Response.noContent().header(ODataConstants.Headers.DATA_SERVICE_VERSION, ODataConstants.DATA_SERVICE_VERSION_HEADER).build();
     }
 
     if (method != null)
@@ -246,8 +236,6 @@ public class EntityRequestResource extends BaseResource {
     }
 
     producer.deleteEntity(odataContext, entitySetName, entityKey);
-
-    // TODO: hmmh..isn't this supposed to be HTTP 204 No Content?
     return Response.ok().header(ODataConstants.Headers.DATA_SERVICE_VERSION, ODataConstants.DATA_SERVICE_VERSION_HEADER).build();
   }
 
