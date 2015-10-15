@@ -280,6 +280,18 @@ public class EdmDataServices {
   }
 
   public EdmType resolveType(String fqTypeName) {
+	boolean collection = false;
+	if (fqTypeName.startsWith("Collection(") && fqTypeName.endsWith(")")) {
+		fqTypeName = fqTypeName.substring(11, fqTypeName.length()-1);
+		collection = true;
+	} else 	if (fqTypeName.startsWith("List(") && fqTypeName.endsWith(")")) {
+		fqTypeName = fqTypeName.substring(5, fqTypeName.length()-1);
+		collection = true;
+	} else 	if (fqTypeName.startsWith("Bag(") && fqTypeName.endsWith(")")) {
+		fqTypeName = fqTypeName.substring(4, fqTypeName.length()-1);
+		collection = true;
+	}
+	
     EdmType t = EdmType.getSimple(fqTypeName);
     if (t == null) {
       // not simple, try complex
@@ -288,6 +300,9 @@ public class EdmDataServices {
         // try entity type
         t = this.findEdmEntityType(fqTypeName);
       }
+    }
+    if (collection) {
+    	return new EdmCollectionType(CollectionKind.Collection, t);
     }
     return t;
   }

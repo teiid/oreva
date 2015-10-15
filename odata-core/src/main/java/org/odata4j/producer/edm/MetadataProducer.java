@@ -570,7 +570,7 @@ public class MetadataProducer implements ODataProducer {
                 props.add(OProperties.complex(propName, (EdmComplexType) co.getType(), co.getProperties()));
               } else if (ov instanceof OCollection) {
                 OCollection<?> co = (OCollection<?>) ov;
-                props.add(OProperties.collection(propName, new EdmCollectionType(CollectionKind.Bag, co.getType()), co));
+                props.add(OProperties.collection(propName, new EdmCollectionType(CollectionKind.Collection, co.getType()), co));
               }
             }
           }

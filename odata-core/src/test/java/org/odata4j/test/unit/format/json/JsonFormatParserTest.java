@@ -7,13 +7,17 @@ import java.io.StringReader;
 
 import org.junit.Test;
 import org.odata4j.core.ODataVersion;
+import org.odata4j.edm.EdmCollectionType;
+import org.odata4j.edm.EdmCollectionType.Builder;
 import org.odata4j.edm.EdmDataServices;
 import org.odata4j.edm.EdmEntityContainer;
 import org.odata4j.edm.EdmEntitySet;
 import org.odata4j.edm.EdmEntityType;
 import org.odata4j.edm.EdmProperty;
+import org.odata4j.edm.EdmProperty.CollectionKind;
 import org.odata4j.edm.EdmSchema;
 import org.odata4j.edm.EdmSimpleType;
+import org.odata4j.edm.EdmType;
 import org.odata4j.format.Feed;
 import org.odata4j.format.FormatParser;
 import org.odata4j.format.FormatParserFactory;
@@ -31,17 +35,23 @@ public class JsonFormatParserTest {
         "\"uri_extensions\": []," + // (empty) array
         "\"edit\": \"http://localhost:8180/databinding/odata.svc/Products(2)\"," +
         "\"edit_link_extensions\": [ { \"name\": \"title\", \"namespaceURI\": null, \"value\": \"Products\" } ]," + // array
-        "\"properties\": { \"id\": { \"type\": \"Edm.Int32\", \"extensions\": [] }, \"price\": { \"type\": \"Edm.Double\", \"extensions\": [] }, \"name\": { \"type\": \"Edm.String\", \"extensions\": [] }, }," + // object
+        "\"properties\": { \"id\": { \"type\": \"Edm.Int32\", \"extensions\": [] }, \"price\": { \"type\": \"Edm.Double\", \"extensions\": [] }, \"name\": { \"type\": \"Edm.String\", \"extensions\": [] },  \"quantity\": { \"type\": \"Collection(Edm.String)\", \"extensions\": [] }}," + // object
         "\"type\": \"SampleAppModel.Products\"," +
         "\"type_extensions\": []" + // (empty) array
         "}," +
-        "\"id\": 2, \"price\": \"235\", \"name\": \"Product ABC\" } }");
+        "\"id\": 2, \"price\": \"235\", \"name\": \"Product ABC\",\"quantity\" : {\n" + 
+        "\"results\" : [\n" + 
+        "1, 2, 3\n" + 
+        "]\n" + 
+        "}, } }");
 
     // build metadata
     EdmProperty.Builder productIdProperty = EdmProperty.newBuilder("id").setType(EdmSimpleType.INT32);
     EdmProperty.Builder priceProperty = EdmProperty.newBuilder("price").setType(EdmSimpleType.DOUBLE);
     EdmProperty.Builder productNameProperty = EdmProperty.newBuilder("name").setType(EdmSimpleType.STRING);
-    EdmEntityType.Builder productsEntityType = new EdmEntityType.Builder().setNamespace("SampleAppModel").setName("Products").addKeys("id").addProperties(productIdProperty, priceProperty, productNameProperty);
+    EdmProperty.Builder qunatityProperty = EdmProperty.newBuilder("quantity").setCollectionKind(CollectionKind.Collection)
+    		.setType(EdmSimpleType.INT32);
+    EdmEntityType.Builder productsEntityType = new EdmEntityType.Builder().setNamespace("SampleAppModel").setName("Products").addKeys("id").addProperties(productIdProperty, priceProperty, productNameProperty, qunatityProperty);
     EdmEntitySet.Builder productsEntitySet = new EdmEntitySet.Builder().setName("Products").setEntityType(productsEntityType);
     EdmEntityContainer.Builder container = new EdmEntityContainer.Builder().addEntitySets(productsEntitySet);
     EdmSchema.Builder schema = new EdmSchema.Builder().addEntityContainers(container).addEntityTypes(productsEntityType);
