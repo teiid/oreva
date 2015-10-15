@@ -70,7 +70,7 @@ public class XmlFormatWriter {
         String typename = type.getFullyQualifiedTypeName();
         if (value instanceof OCollection) {
           EdmCollectionType collectionType = (EdmCollectionType) type;
-          typename = "Bag(" + collectionType.getItemType().getFullyQualifiedTypeName() + ")";
+          typename = "Collection(" + collectionType.getItemType().getFullyQualifiedTypeName() + ")";
         }
         writer.writeAttribute(new QName2(m, "type", "m"), typename);
       }
