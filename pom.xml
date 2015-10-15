@@ -4,7 +4,7 @@
 
   <groupId>org.jboss.oreva</groupId>
   <artifactId>parent</artifactId>
-  <version>0.8.9-SNAPSHOT</version>
+  <version>0.8.9</version>
   <packaging>pom</packaging>
 
   <parent>
@@ -35,7 +35,7 @@
 	<connection>scm:git:git://github.com/teiid/oreva.git</connection>
 	<developerConnection>scm:git:git@github.com:teiid/oreva.git</developerConnection>
 	<url>http://github.com/teiid/oreva</url>
-	<tag>0.8.5-SNAPSHOT</tag>
+	<tag>0.8.9</tag>
   </scm>
   
   <distributionManagement>
