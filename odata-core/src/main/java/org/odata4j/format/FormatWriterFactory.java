@@ -11,6 +11,7 @@ import org.odata4j.format.json.JsonEntryFormatWriter;
 import org.odata4j.format.json.JsonErrorFormatWriter;
 import org.odata4j.format.json.JsonFeedFormatWriter;
 import org.odata4j.format.json.JsonPropertyFormatWriter;
+import org.odata4j.format.json.JsonRawFormatWriter;
 import org.odata4j.format.json.JsonRequestEntryFormatWriter;
 import org.odata4j.format.json.JsonServiceDocumentFormatWriter;
 import org.odata4j.format.json.JsonSimpleFormatWriter;
@@ -21,6 +22,7 @@ import org.odata4j.format.xml.AtomComplexFormatWriter;
 import org.odata4j.format.xml.AtomEntryFormatWriter;
 import org.odata4j.format.xml.AtomErrorFormatWriter;
 import org.odata4j.format.xml.AtomFeedFormatWriter;
+import org.odata4j.format.xml.AtomRawFormatWriter;
 import org.odata4j.format.xml.AtomRequestEntryFormatWriter;
 import org.odata4j.format.xml.AtomServiceDocumentFormatWriter;
 import org.odata4j.format.xml.AtomSimpleFormatWriter;
@@ -33,6 +35,7 @@ import org.odata4j.producer.EntitiesResponse;
 import org.odata4j.producer.EntityResponse;
 import org.odata4j.producer.ErrorResponse;
 import org.odata4j.producer.PropertyResponse;
+import org.odata4j.producer.RawResponse;
 import org.odata4j.producer.SimpleResponse;
 
 public class FormatWriterFactory {
@@ -48,6 +51,8 @@ public class FormatWriterFactory {
     FormatWriter<PropertyResponse> getPropertyFormatWriter();
 
     FormatWriter<SimpleResponse> getSimpleFormatWriter();
+    
+    FormatWriter<RawResponse> getRawFormatWriter();
 
     FormatWriter<Entry> getRequestEntryFormatWriter();
 
@@ -102,6 +107,9 @@ public class FormatWriterFactory {
     if (targetType.equals(SimpleResponse.class))
       return (FormatWriter<T>) formatWriters.getSimpleFormatWriter();
 
+    if (targetType.equals(RawResponse.class))
+        return (FormatWriter<T>) formatWriters.getRawFormatWriter();
+    
     if (Entry.class.isAssignableFrom(targetType))
       return (FormatWriter<T>) formatWriters.getRequestEntryFormatWriter();
 
@@ -160,6 +168,11 @@ public class FormatWriterFactory {
     @Override
     public FormatWriter<SimpleResponse> getSimpleFormatWriter() {
       return new JsonSimpleFormatWriter(callback);
+    }
+    
+    @Override
+    public FormatWriter<RawResponse> getRawFormatWriter() {
+      return new JsonRawFormatWriter();
     }
 
     @Override
@@ -244,6 +257,11 @@ public class FormatWriterFactory {
     public FormatWriter<SimpleResponse> getSimpleFormatWriter() {
       return new AtomSimpleFormatWriter();
     }
+    
+    @Override
+    public FormatWriter<RawResponse> getRawFormatWriter() {
+      return new AtomRawFormatWriter();
+    }    
 
     @Override
     public FormatWriter<ErrorResponse> getErrorFormatWriter() {

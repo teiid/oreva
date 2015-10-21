@@ -18,7 +18,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Providers;
 
 import org.odata4j.core.ODataConstants;
@@ -40,6 +39,7 @@ import org.odata4j.producer.ODataContextImpl;
 import org.odata4j.producer.ODataProducer;
 import org.odata4j.producer.PropertyResponse;
 import org.odata4j.producer.QueryInfo;
+import org.odata4j.producer.RawResponse;
 
 public class PropertyRequestResource extends BaseResource {
 
@@ -215,6 +215,16 @@ public class PropertyRequestResource extends BaseResource {
                 callback);
         fw.write(uriInfo, sw, (PropertyResponse) response);
         fwBase = fw;
+      } else if (response instanceof RawResponse) {
+          FormatWriter<RawResponse> fw =
+              FormatWriterFactory.getFormatWriter(
+                  RawResponse.class,
+                  httpHeaders.getAcceptableMediaTypes(),
+                  format,
+                  callback);
+
+          fw.write(uriInfo, sw, (RawResponse) response);
+          fwBase = fw;
       } else if (response instanceof EntityResponse) {
         FormatWriter<EntityResponse> fw =
             FormatWriterFactory.getFormatWriter(

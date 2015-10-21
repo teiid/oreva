@@ -141,7 +141,27 @@ public class Responses {
 
     };
   }
+  
+  public static RawResponse raw(final EdmSimpleType<?> type, final String name, final Object value) {
+	    return new RawResponse() {
 
+	      @Override
+	      public EdmSimpleType<?> getType() {
+	        return type;
+	      }
+
+	      @Override
+	      public Object getValue() {
+	        return value;
+	      }
+
+	      @Override
+	      public String getName() {
+	        return name;
+	      }
+
+	    };
+	  }  
   /**
    * Creates a new <code>EntityIdResponse</code> instance for payloads with a cardinality of {@link EdmMultiplicity#ONE}.
    *
