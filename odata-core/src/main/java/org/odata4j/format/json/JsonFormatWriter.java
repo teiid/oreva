@@ -170,6 +170,8 @@ public abstract class JsonFormatWriter<T> implements FormatWriter<T> {
             writeComplexObject(jw, null, obj.getType().getFullyQualifiedTypeName(), ((OComplexObject) obj).getProperties());
           } else if (obj instanceof OSimpleObject) {
             writeValue(jw, obj.getType(), ((OSimpleObject) obj).getValue());
+          } else if (obj instanceof OCollection) {
+        	writeCollection(jw, type, (OCollection<?>)obj);
           }
           //else if (obj instanceof OEntity) {
           //  I think the FormatWriter sig is going to have to change:

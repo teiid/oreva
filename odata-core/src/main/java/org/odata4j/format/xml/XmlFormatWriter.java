@@ -405,6 +405,11 @@ public class XmlFormatWriter {
         writeProperty(writer, "element", o.getType(), o, false, false);
       } else if (o instanceof OSimpleObject) {
         writeProperty(writer, "element", o.getType(), ((OSimpleObject) o).getValue(), false, false); // not a doc element and don't write the typename
+      } else if (o instanceof OCollection) {
+    	writer.startElement("d:element");
+    	writer.writeAttribute("m:type", "Collection("+((OCollection<?>)o).getType().getFullyQualifiedTypeName()+")");
+      	writeCollection(writer, "element", (OCollection<?>)o);
+      	writer.endElement("d:element");
       } else {
         // TODO...
       }
