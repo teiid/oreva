@@ -4,7 +4,7 @@
 
   <groupId>org.jboss.oreva</groupId>
   <artifactId>parent</artifactId>
-  <version>0.8.11-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <parent>
@@ -35,7 +35,7 @@
 	<connection>scm:git:git://github.com/teiid/oreva.git</connection>
 	<developerConnection>scm:git:git@github.com:teiid/oreva.git</developerConnection>
 	<url>http://github.com/teiid/oreva</url>
-	<tag>0.8.5-SNAPSHOT</tag>
+	<tag>1.0.0-SNAPSHOT</tag>
   </scm>
   
   <distributionManagement>
@@ -99,7 +99,7 @@
     <built.by>${project.name}</built.by>
     <oreva.sign.artifacts.phase>verify</oreva.sign.artifacts.phase>
 
-    <jsr311.version>1.1.1</jsr311.version>
+    <jsr311.version>1.0.0.Final</jsr311.version>
     <jpa.version>2.0.0</jpa.version>
     <eclipselink.version>2.1.2</eclipselink.version>
     <joda.version>2.1</joda.version>
