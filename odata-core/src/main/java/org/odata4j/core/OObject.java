@@ -12,7 +12,10 @@ import org.odata4j.edm.EdmType;
  */
 public interface OObject {
 
-  /** Gets the edm type of this object */
+  /** 
+   * Gets the edm type of this object
+   * @return EdmType 
+   */
   EdmType getType();
 
 }

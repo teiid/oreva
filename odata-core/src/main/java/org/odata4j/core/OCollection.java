@@ -18,7 +18,10 @@ public interface OCollection<T extends OObject> extends OObject, Iterable<T> {
     OCollection<T> build();
   }
 
-  /** Gets the size of this collection */
+  /** 
+   * Gets the size of this collection
+   * @return int 
+   */
   int size();
 
 }

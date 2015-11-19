@@ -7,11 +7,13 @@ public interface OAtomStreamEntity extends OExtension<OEntity> {
 
   /**
    * Gets the stream content-type.
+   * @return String
    */
   String getAtomEntityType();
 
   /**
    * Gets the stream src uri.
+   * @return String
    */
   String getAtomEntitySource();
 
