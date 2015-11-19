@@ -24,7 +24,7 @@ public class NamedValues {
   }
 
   /**
-   * Create multiple named-values from a string->object map.
+   * Create multiple named-values from a string---object map.
    *
    * @param values  names and values
    * @return a set of new named-value instances

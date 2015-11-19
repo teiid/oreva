@@ -134,8 +134,17 @@
     <module>odata-core</module>
     <module>test-integration</module>
   </modules>
-
+ 
   <build>
+    <pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.10.1</version>
+      </plugin>
+    </plugins>
+    </pluginManagement> 
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -187,7 +196,16 @@
           </execution>
         </executions>
       </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<additionalparam>-Xdoclint:none</additionalparam>
+					<failOnError>false</failOnError>
+				</configuration>
+			</plugin>      
     </plugins>
   </build>
+
 
 </project>

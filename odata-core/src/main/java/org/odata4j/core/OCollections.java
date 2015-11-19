@@ -13,7 +13,6 @@ import org.odata4j.edm.EdmType;
  */
 public class OCollections {
 
-  /** Starts a new {@link OCollection} builder using a given edm type. */
   public static <T extends OObject> OCollection.Builder<T> newBuilder(EdmType type) {
     return new BuilderImpl<T>(type);
   }

@@ -47,12 +47,11 @@ public class OEntityKey {
 
   /**
    * Creates an entity-key.
-   * <ul>
-   *   <li><code>OEntityKey.create(2)</code></li>,
-   *   <li><code>OEntityKey.create("foo")</code></li>
-   *   <li><code>OEntityKey.create("a",1,"foo","bar")</code></li>
-   *   <li><code>OEntityKey.create(NamedValues.create("a",1),NamedValues.create("foo","bar"))</code></li>
-   * </ul></p>
+   * 
+   * OEntityKey.create(2)
+   * OEntityKey.create("foo")
+   * OEntityKey.create("a",1,"foo","bar")
+   * OEntityKey.create(NamedValues.create("a",1),NamedValues.create("foo","bar"))
    *
    * @param values  the key values
    * @return a newly-created entity-key
@@ -263,7 +262,7 @@ public class OEntityKey {
 
   /**
    * returns the value for a named value in a complex key.
-   * @param name
+   * @param name key name
    * @return the value
    */
   public Object getComplexKeyValue(String name) {

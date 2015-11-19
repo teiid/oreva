@@ -48,6 +48,7 @@ public class OEntities {
   * Creates a new entity.
   *
   * @param entitySet  the entity-set
+  * @param entityType type
   * @param entityKey  the entity-key
   * @param properties  the entity properties, if any
   * @param links  the entity links, if any

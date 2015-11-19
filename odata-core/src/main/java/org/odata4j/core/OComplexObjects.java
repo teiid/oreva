@@ -14,12 +14,16 @@ public class OComplexObjects {
 
   private OComplexObjects() {}
 
-  /** Starts a new {@link OComplexObject} builder of a given edm complex type. */
   public static OComplexObject.Builder newBuilder(EdmComplexType type) {
     return new BuilderImpl(type);
   }
 
-  /** Creates a new {@link OComplexObject} of a given edm complex type using the properties provided. */
+  /**
+   * Creates a new {@link OComplexObject} of a given edm complex type using the properties provided.
+   * @param type type
+   * @param properties properties
+   * @return built complex object
+   */
   public static OComplexObject create(EdmComplexType type, List<OProperty<?>> properties) {
     return new OComplexObjectImpl(type, properties);
   }

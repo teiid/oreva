@@ -28,6 +28,7 @@ public enum Boole {
    * @param  value OData string representation of a boolean value.
    * @throws IllegalArgumentException if {@code value} is not one of
    *         {@code true}, {@code false}, {@code 1}, or {@code 0}.
+   * @return Boole
    */
   public static Boole fromString(String value) {
     for (Boole boole : Boole.values())
