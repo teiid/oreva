@@ -77,4 +77,59 @@ public class HeaderMap extends HashMap<String, List<String>> implements Multival
         return super.remove(k);
     return null;
   }
+
+  @Override
+  public void addAll(String key, String... newValues)
+  {
+     for (String value : newValues)
+     {
+        add(key, value);
+     }
+  }
+	
+  @Override
+  public void addAll(String key, List<String> valueList)
+  {
+     for (String value : valueList)
+     {
+        add(key, value);
+     }
+  }
+	
+  @Override
+  public void addFirst(String key, String value)
+  {
+     List<String> list = get(key);
+     if (list == null)
+     {
+        add(key, value);
+        return;
+     }
+     else
+     {
+        list.add(0, value);
+     }
+  }
+	
+  @Override
+  public boolean equalsIgnoreValueOrder(MultivaluedMap<String, String> omap) {
+     if (this == omap) {
+        return true;
+     }
+     if (!keySet().equals(omap.keySet())) {
+        return false;
+     }
+     for (Map.Entry<String, List<String>> e : entrySet()) {
+        List<String> olist = omap.get(e.getKey());
+        if (e.getValue().size() != olist.size()) {
+           return false;
+        }
+        for (String v : e.getValue()) {
+           if (!olist.contains(v)) {
+              return false;
+           }
+        }
+     }
+     return true;
+  }
 }
