@@ -3,10 +3,15 @@
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 .settings
+bin/
+**/.classpath
 .project
 .classpath
 target
-
+.metadata
+.settings
+.classpath
+.project
 # Package Files #
 *.jar
 *.war
