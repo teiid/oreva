@@ -6,7 +6,7 @@
 .project
 .classpath
 target
-**/bin/*
+
 # Package Files #
 *.jar
 *.war
