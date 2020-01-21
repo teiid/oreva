@@ -8,6 +8,7 @@ import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.XMLEvent;
 
 import org.core4j.Enumerable;
@@ -64,7 +65,7 @@ public class StaxXMLWriter2 implements XMLWriter2 {
   public void startElement(QName2 qname, String xmlns) {
     // writer.setDefaultNamespace("http://www.example.com/ns1");
     try {
-      Iterator<?> nsIterator = null;
+      Iterator<Namespace> nsIterator = null;
       if (xmlns != null) {
         nsIterator = Enumerable.create(eventFactory.createNamespace(xmlns)).iterator();
       }

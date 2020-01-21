@@ -6,7 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
@@ -29,13 +29,13 @@ public class TypeConverterTest {
     DateFormat timeParser = DateFormat.getTimeInstance(DateFormat.MEDIUM, Locale.US);
     Calendar cal = Calendar.getInstance();
 
-    Assert.assertEquals(dateTimeParser.parse("03/28/2011 7:20:21 pm"),
+    Assert.assertEquals(dateTimeParser.parse("03/28/2011, 7:20:21 pm"),
         TypeConverter.convert(new LocalDateTime(2011, 03, 28, 19, 20, 21), Date.class));
 
     Assert.assertEquals(timeParser.parse("7:20:21 pm"),
         TypeConverter.convert(new LocalTime(19, 20, 21), Date.class));
 
-    cal.setTime(dateTimeParser.parse("03/28/2011 7:20:21 pm"));
+    cal.setTime(dateTimeParser.parse("03/28/2011, 7:20:21 pm"));
     Assert.assertEquals(cal,
         TypeConverter.convert(new LocalDateTime(2011, 03, 28, 19, 20, 21), Calendar.class));
 
@@ -49,10 +49,10 @@ public class TypeConverterTest {
     Assert.assertEquals(new java.sql.Time(timeParser.parse("7:20:21 pm").getTime()),
         TypeConverter.convert(new LocalTime(19, 20, 21), java.sql.Time.class));
 
-    Assert.assertEquals(new java.sql.Date(dateTimeParser.parse("03/28/2011 0:00:00 am").getTime()),
+    Assert.assertEquals(new java.sql.Date(dateTimeParser.parse("03/28/2011, 0:00:00 am").getTime()),
         TypeConverter.convert(new LocalDateTime(2011, 03, 28, 0, 0), java.sql.Date.class));
 
-    Assert.assertEquals(new java.sql.Timestamp(dateTimeParser.parse("03/28/2011 7:20:21 pm").getTime()),
+    Assert.assertEquals(new java.sql.Timestamp(dateTimeParser.parse("03/28/2011, 7:20:21 pm").getTime()),
         TypeConverter.convert(new LocalDateTime(2011, 03, 28, 19, 20, 21), java.sql.Timestamp.class));
 
     Assert.assertEquals(new java.sql.Timestamp(timeParser.parse("7:20:21 pm").getTime()),
