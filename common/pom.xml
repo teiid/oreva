@@ -9,7 +9,7 @@
   <description>A fork of Core4J module</description>
 
   <parent>
-    <groupId>org.teiid.oreva</groupId>
+    <groupId>org.jboss.oreva</groupId>
     <artifactId>parent</artifactId>
     <version>1.0.1-SNAPSHOT</version>
     <relativePath>..</relativePath>
