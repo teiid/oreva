@@ -1,6 +1,6 @@
 package org.odata4j.test.unit.expressions;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.joda.time.Chronology;
 import org.joda.time.DateTime;
