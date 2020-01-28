@@ -132,9 +132,23 @@
   <modules>
     <module>common</module>
     <module>odata-core</module>
-    <module>test-integration</module>
   </modules>
- 
+
+	<profiles>
+        <profile>
+            <id>release</id>
+        </profile>
+
+        <profile>
+            <id>default</id>
+            <modules>
+                <module>test-integration</module>
+            </modules>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+    </profiles>
   <build>
     <pluginManagement>
     <plugins>
